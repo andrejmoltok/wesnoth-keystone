@@ -6,7 +6,9 @@
 // - https://keystonejs.com/docs/config/lists
 
 import { list } from '@keystone-6/core';
-import { allowAll } from '@keystone-6/core/access';
+import { allOperations } from '@keystone-6/core/access';
+
+import { isSignedIn, permissions, rules } from './access';
 
 // see https://keystonejs.com/docs/fields/overview for the full list of fields
 //   this is a few common fields for an example
@@ -17,6 +19,7 @@ import {
   timestamp,
   image,
   select,
+  checkbox,
 } from '@keystone-6/core/fields';
 
 // the document field is a more complicated field, so it has it's own package
@@ -29,7 +32,11 @@ import type { Lists } from '.keystone/types';
 
 export const lists: Lists = {
   User: list({
-    access: allowAll,
+    access: {
+      operation: {
+        ...allOperations(isSignedIn),
+      }
+    },
 
     // this is the fields for our User list
     fields: {
@@ -46,6 +53,8 @@ export const lists: Lists = {
 
       race: relationship({ ref: 'Race', many: false}),
 
+      role: relationship({ ref: 'Role', many: false}),
+
       // we can use this field to see what Posts this User has authored
       //   more on that in the Post list below
       posts: relationship({ ref: 'Post.author', many: true }),
@@ -57,8 +66,55 @@ export const lists: Lists = {
     },
   }),
 
+  Role: list({
+    access: {
+      operation: {
+        ...allOperations(isSignedIn),
+        create: permissions.admin,
+        delete: permissions.admin,
+        update: permissions.admin,
+      }
+    },
+    fields: {
+      name: text({
+        isIndexed: 'unique',
+        hooks: {
+          resolveInput: ({operation,resolvedData,inputData}) => {
+            if (operation === 'create') {
+              return inputData.role
+            }
+            return resolvedData.name
+          }
+        }
+      }),
+      role: select({
+        type: 'string',
+        defaultValue: '',
+        db: { map: 'role'},
+        options: [
+          {
+            label: 'Admin',
+            value: 'admin',
+          },
+          {
+            label: 'Szerkesztő',
+            value: 'editor'
+          },
+          {
+            label: 'Felhasználó',
+            value: 'user'
+          }
+        ]
+      }),
+    },
+  }),
+
   Post: list({
-    access: allowAll,
+    access: {
+      operation: {
+        ...allOperations(isSignedIn),
+      }
+    },
 
     // this is the fields for our Post list
     fields: {
@@ -118,9 +174,24 @@ export const lists: Lists = {
   }),
 
   Race: list({
-    access: allowAll,
+    access: {
+      operation: {
+        ...allOperations(isSignedIn),
+      }
+    },
     fields: {
-      name: select({
+      name: text({
+        isIndexed: 'unique',
+        hooks: {
+          resolveInput: ({operation,resolvedData,inputData}) => {
+            if (operation === 'create') {
+              return inputData.races
+            }
+            return resolvedData.name
+          }
+        }
+      }),
+      races: select({
         type: 'string',
         defaultValue: '',
         db: { map: 'race'},
@@ -212,13 +283,17 @@ export const lists: Lists = {
         ],
         validation: { isRequired: true }
       }),
-      race: image({storage: 'images'}),
-    },
+      image: image({storage: 'images'}),
+    }
   }),
 
   // this last list is our Tag list, it only has a name field for now
   Tag: list({
-    access: allowAll,
+    access: {
+      operation: {
+        ...allOperations(isSignedIn),
+      }
+    },
 
     // setting this to isHidden for the user interface prevents this list being visible in the Admin UI
     ui: {

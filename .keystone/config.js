@@ -28,11 +28,27 @@ var import_core2 = require("@keystone-6/core");
 // schema.ts
 var import_core = require("@keystone-6/core");
 var import_access = require("@keystone-6/core/access");
+
+// access.ts
+var isSignedIn = ({ session: session2 }) => {
+  return !!session2;
+};
+var permissions = {
+  admin: ({ session: session2 }) => !!session2?.data.role?.admin,
+  editor: ({ session: session2 }) => !!session2?.data.role?.editor,
+  user: ({ session: session2 }) => !!session2?.data.role?.user
+};
+
+// schema.ts
 var import_fields = require("@keystone-6/core/fields");
 var import_fields_document = require("@keystone-6/fields-document");
 var lists = {
   User: (0, import_core.list)({
-    access: import_access.allowAll,
+    access: {
+      operation: {
+        ...(0, import_access.allOperations)(isSignedIn)
+      }
+    },
     // this is the fields for our User list
     fields: {
       name: (0, import_fields.text)({ validation: { isRequired: true } }),
@@ -44,6 +60,7 @@ var lists = {
       }),
       password: (0, import_fields.password)({ validation: { isRequired: true } }),
       race: (0, import_fields.relationship)({ ref: "Race", many: false }),
+      role: (0, import_fields.relationship)({ ref: "Role", many: false }),
       // we can use this field to see what Posts this User has authored
       //   more on that in the Post list below
       posts: (0, import_fields.relationship)({ ref: "Post.author", many: true }),
@@ -53,8 +70,54 @@ var lists = {
       })
     }
   }),
+  Role: (0, import_core.list)({
+    access: {
+      operation: {
+        ...(0, import_access.allOperations)(isSignedIn),
+        create: permissions.admin,
+        delete: permissions.admin,
+        update: permissions.admin
+      }
+    },
+    fields: {
+      name: (0, import_fields.text)({
+        isIndexed: "unique",
+        hooks: {
+          resolveInput: ({ operation, resolvedData, inputData }) => {
+            if (operation === "create") {
+              return inputData.role;
+            }
+            return resolvedData.name;
+          }
+        }
+      }),
+      role: (0, import_fields.select)({
+        type: "string",
+        defaultValue: "",
+        db: { map: "role" },
+        options: [
+          {
+            label: "Admin",
+            value: "admin"
+          },
+          {
+            label: "Szerkeszt\u0151",
+            value: "editor"
+          },
+          {
+            label: "Felhaszn\xE1l\xF3",
+            value: "user"
+          }
+        ]
+      })
+    }
+  }),
   Post: (0, import_core.list)({
-    access: import_access.allowAll,
+    access: {
+      operation: {
+        ...(0, import_access.allOperations)(isSignedIn)
+      }
+    },
     // this is the fields for our Post list
     fields: {
       title: (0, import_fields.text)({ validation: { isRequired: true } }),
@@ -105,9 +168,24 @@ var lists = {
     }
   }),
   Race: (0, import_core.list)({
-    access: import_access.allowAll,
+    access: {
+      operation: {
+        ...(0, import_access.allOperations)(isSignedIn)
+      }
+    },
     fields: {
-      name: (0, import_fields.select)({
+      name: (0, import_fields.text)({
+        isIndexed: "unique",
+        hooks: {
+          resolveInput: ({ operation, resolvedData, inputData }) => {
+            if (operation === "create") {
+              return inputData.races;
+            }
+            return resolvedData.name;
+          }
+        }
+      }),
+      races: (0, import_fields.select)({
         type: "string",
         defaultValue: "",
         db: { map: "race" },
@@ -199,12 +277,16 @@ var lists = {
         ],
         validation: { isRequired: true }
       }),
-      race: (0, import_fields.image)({ storage: "images" })
+      image: (0, import_fields.image)({ storage: "images" })
     }
   }),
   // this last list is our Tag list, it only has a name field for now
   Tag: (0, import_core.list)({
-    access: import_access.allowAll,
+    access: {
+      operation: {
+        ...(0, import_access.allOperations)(isSignedIn)
+      }
+    },
     // setting this to isHidden for the user interface prevents this list being visible in the Admin UI
     ui: {
       isHidden: true
@@ -222,7 +304,7 @@ var lists = {
 var import_crypto = require("crypto");
 var import_auth = require("@keystone-6/auth");
 var import_session = require("@keystone-6/core/session");
-var sessionSecret = process.env.SESSION_SECRET;
+var sessionSecret = "cl32flyX0cj3ah9OdI1AgP7ooFHji48a";
 if (!sessionSecret && process.env.NODE_ENV !== "production") {
   sessionSecret = (0, import_crypto.randomBytes)(32).toString("hex");
 }

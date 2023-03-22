@@ -7,6 +7,7 @@ type User {
   email: String
   password: PasswordState
   race: Race
+  role: Role
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
   postsCount(where: PostWhereInput! = {}): Int
   createdAt: DateTime
@@ -31,6 +32,7 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   race: RaceWhereInput
+  role: RoleWhereInput
   posts: PostManyRelationFilter
   createdAt: DateTimeNullableFilter
 }
@@ -108,6 +110,7 @@ input UserUpdateInput {
   email: String
   password: String
   race: RaceRelateToOneForUpdateInput
+  role: RoleRelateToOneForUpdateInput
   posts: PostRelateToManyForUpdateInput
   createdAt: DateTime
 }
@@ -115,6 +118,12 @@ input UserUpdateInput {
 input RaceRelateToOneForUpdateInput {
   create: RaceCreateInput
   connect: RaceWhereUniqueInput
+  disconnect: Boolean
+}
+
+input RoleRelateToOneForUpdateInput {
+  create: RoleCreateInput
+  connect: RoleWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -135,6 +144,7 @@ input UserCreateInput {
   email: String
   password: String
   race: RaceRelateToOneForCreateInput
+  role: RoleRelateToOneForCreateInput
   posts: PostRelateToManyForCreateInput
   createdAt: DateTime
 }
@@ -144,9 +154,83 @@ input RaceRelateToOneForCreateInput {
   connect: RaceWhereUniqueInput
 }
 
+input RoleRelateToOneForCreateInput {
+  create: RoleCreateInput
+  connect: RoleWhereUniqueInput
+}
+
 input PostRelateToManyForCreateInput {
   create: [PostCreateInput!]
   connect: [PostWhereUniqueInput!]
+}
+
+type Role {
+  id: ID!
+  name: String
+  role: String
+}
+
+input RoleWhereUniqueInput {
+  id: ID
+  name: String
+}
+
+input RoleWhereInput {
+  AND: [RoleWhereInput!]
+  OR: [RoleWhereInput!]
+  NOT: [RoleWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  role: StringNullableFilter
+}
+
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
+}
+
+input NestedStringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
+}
+
+input RoleOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+  role: OrderDirection
+}
+
+input RoleUpdateInput {
+  name: String
+  role: String
+}
+
+input RoleUpdateArgs {
+  where: RoleWhereUniqueInput!
+  data: RoleUpdateInput!
+}
+
+input RoleCreateInput {
+  name: String
+  role: String
 }
 
 type Post {
@@ -232,7 +316,8 @@ input TagRelateToManyForCreateInput {
 type Race {
   id: ID!
   name: String
-  race: ImageFieldOutput
+  races: String
+  image: ImageFieldOutput
 }
 
 type ImageFieldOutput {
@@ -253,6 +338,7 @@ enum ImageExtension {
 
 input RaceWhereUniqueInput {
   id: ID
+  name: String
 }
 
 input RaceWhereInput {
@@ -261,16 +347,19 @@ input RaceWhereInput {
   NOT: [RaceWhereInput!]
   id: IDFilter
   name: StringFilter
+  races: StringFilter
 }
 
 input RaceOrderByInput {
   id: OrderDirection
   name: OrderDirection
+  races: OrderDirection
 }
 
 input RaceUpdateInput {
   name: String
-  race: ImageFieldInput
+  races: String
+  image: ImageFieldInput
 }
 
 input ImageFieldInput {
@@ -287,7 +376,8 @@ input RaceUpdateArgs {
 
 input RaceCreateInput {
   name: String
-  race: ImageFieldInput
+  races: String
+  image: ImageFieldInput
 }
 
 type Tag {
@@ -342,6 +432,12 @@ type Mutation {
   updateUsers(data: [UserUpdateArgs!]!): [User]
   deleteUser(where: UserWhereUniqueInput!): User
   deleteUsers(where: [UserWhereUniqueInput!]!): [User]
+  createRole(data: RoleCreateInput!): Role
+  createRoles(data: [RoleCreateInput!]!): [Role]
+  updateRole(where: RoleWhereUniqueInput!, data: RoleUpdateInput!): Role
+  updateRoles(data: [RoleUpdateArgs!]!): [Role]
+  deleteRole(where: RoleWhereUniqueInput!): Role
+  deleteRoles(where: [RoleWhereUniqueInput!]!): [Role]
   createPost(data: PostCreateInput!): Post
   createPosts(data: [PostCreateInput!]!): [Post]
   updatePost(where: PostWhereUniqueInput!, data: PostUpdateInput!): Post
@@ -386,6 +482,9 @@ type Query {
   users(where: UserWhereInput! = {}, orderBy: [UserOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: UserWhereUniqueInput): [User!]
   user(where: UserWhereUniqueInput!): User
   usersCount(where: UserWhereInput! = {}): Int
+  roles(where: RoleWhereInput! = {}, orderBy: [RoleOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RoleWhereUniqueInput): [Role!]
+  role(where: RoleWhereUniqueInput!): Role
+  rolesCount(where: RoleWhereInput! = {}): Int
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
   post(where: PostWhereUniqueInput!): Post
   postsCount(where: PostWhereInput! = {}): Int
