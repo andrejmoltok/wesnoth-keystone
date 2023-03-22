@@ -70,7 +70,6 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
-        create: permissions.admin,
         delete: permissions.admin,
         update: permissions.admin,
       }
