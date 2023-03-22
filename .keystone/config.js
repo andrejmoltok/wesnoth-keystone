@@ -58,9 +58,23 @@ var lists = {
         // email as another user - this may or may not be a good idea for your project
         isIndexed: "unique"
       }),
-      password: (0, import_fields.password)({ validation: { isRequired: true } }),
-      race: (0, import_fields.relationship)({ ref: "Race", many: false }),
-      role: (0, import_fields.relationship)({ ref: "Role", many: false }),
+      password: (0, import_fields.password)({
+        validation: { isRequired: true }
+      }),
+      race: (0, import_fields.relationship)({
+        ref: "Race",
+        many: false,
+        ui: {
+          description: "Can only be changed by admins or editors"
+        }
+      }),
+      role: (0, import_fields.relationship)({
+        ref: "Role",
+        many: false,
+        ui: {
+          description: "Can only be changed by admins"
+        }
+      }),
       // we can use this field to see what Posts this User has authored
       //   more on that in the Post list below
       posts: (0, import_fields.relationship)({ ref: "Post.author", many: true }),
@@ -74,7 +88,6 @@ var lists = {
     access: {
       operation: {
         ...(0, import_access.allOperations)(isSignedIn),
-        create: permissions.admin,
         delete: permissions.admin,
         update: permissions.admin
       }
@@ -170,7 +183,10 @@ var lists = {
   Race: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn)
+        ...(0, import_access.allOperations)(isSignedIn),
+        query: ({ session: session2, context, listKey, operation }) => true,
+        update: permissions.admin,
+        delete: permissions.admin
       }
     },
     fields: {

@@ -40,8 +40,7 @@ export default withAuth(
         // Set serverRoute to null if you don't want a route to be created in Keystone
         // serverRoute: null
         storagePath: 'public/images',
-      },
-      /** more storage */
+      }
     }
   })
 );

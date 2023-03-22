@@ -11,28 +11,27 @@ export const permissions = {
 };
 
 export const rules = {
-    canReadPeople: ({ session }: ListAccessArgs) => {
+    canReadUpdate: ({ session }: ListAccessArgs) => {
         if (!session) {
           // No session? No people.
           return false;
         } else if (session.data.role?.admin || session.data.role?.editor) {
-          // Can see everyone
+          // Can see, update everyone
           return true;
         } else {
-          // Can only see yourself
+          // Can only see, update yourself
           return { id: { equals: session.itemId } };
         }
     },
-    canUpdatePeople: ({ session }: ListAccessArgs) => {
-        if (!session) {
-          // No session? No people.
-          return false;
-        } else if (session.data.role?.admin || session.data.role?.editor) {
-          // Can update everyone
-          return true;
-        } else {
-          // Can update yourself
-          return { id: { equals: session.itemId } };
-        }
-      },
+    canDelete: ({ session }: ListAccessArgs) => {
+      if (!session) {
+        // No session? No people.
+        return false;
+      } else if (session.data.role?.admin) {
+        // Can delete everyone
+        return true;
+      } else {
+        return false;
+      }
+    }
 }

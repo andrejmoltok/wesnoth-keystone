@@ -49,11 +49,22 @@ export const lists: Lists = {
         isIndexed: 'unique',
       }),
 
-      password: password({ validation: { isRequired: true } }),
+      password: password({
+        validation: { isRequired: true } }),
 
-      race: relationship({ ref: 'Race', many: false}),
+      race: relationship({ 
+        ref: 'Race', many: false,
+        ui: {
+          description: 'Can only be changed by admins or editors',
+        }
+      }),
 
-      role: relationship({ ref: 'Role', many: false}),
+      role: relationship({ 
+        ref: 'Role', many: false,
+        ui: {
+            description: 'Can only be changed by admins',
+        }
+      }),
 
       // we can use this field to see what Posts this User has authored
       //   more on that in the Post list below
@@ -176,6 +187,9 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
+        query: ({ session, context, listKey, operation }) => true,
+        update: permissions.admin,
+        delete: permissions.admin,
       }
     },
     fields: {
