@@ -5,33 +5,59 @@ export const isSignedIn = ({ session }: ListAccessArgs) => {
 };
 
 export const permissions = {
-    admin: ({ session }: ListAccessArgs) => !!session?.data.role?.admin,
-    editor: ({ session }: ListAccessArgs) => !!session?.data.role?.editor,
-    user: ({ session }: ListAccessArgs) => !!session?.data.role?.user,
+    Admin: ({ session }: ListAccessArgs) => {//console.log('Admin',!!session?.data.role?.admin);
+      return !!session?.data.role?.admin}, //false
+    Szerkesztő: ({ session }: ListAccessArgs) => {//console.log('Editor',!!session?.data.role?.editor); 
+      return !!session?.data.role?.editor}, //false
+    Felhasználó: ({ session }: ListAccessArgs) => {//console.log('User',!!session?.data.role?.user); 
+      return !!session?.data.role?.user}, //false
 };
 
 export const rules = {
-    canReadUpdate: ({ session }: ListAccessArgs) => {
+    canCreate: ({ session }: ListAccessArgs) => {
+      if (!session) {
+        // No session? No people.
+        return false;
+      } else if (!!permissions.Admin(session)) {
+        //console.log('Admin canCreate hidden false');
+        // Can create everyone
+        return false; //hidden
+      } else {
+        // cannot create
+        //console.log('Editor-User canCreate hidden true');
+        return true; //hidden
+      }
+    },
+    canRead: ({ session }: ListAccessArgs) => {
         if (!session) {
           // No session? No people.
           return false;
-        } else if (session.data.role?.admin || session.data.role?.editor) {
-          // Can see, update everyone
-          return true;
         } else {
-          // Can only see, update yourself
-          return { id: { equals: session.itemId } };
+          return true;
+        }
+    },
+    canUpdate: ({ session }: ListAccessArgs) => {
+        if (!session) {
+          // No session? No people.
+          return false;
+        } else {
+          return true;
         }
     },
     canDelete: ({ session }: ListAccessArgs) => {
       if (!session) {
         // No session? No people.
         return false;
-      } else if (session.data.role?.admin) {
+      } else if (!!permissions.Admin(session)) {
         // Can delete everyone
-        return true;
+        //console.log('Admin canDelete true');
+        return true; //hidden
+      } else if (!!permissions.Szerkesztő(session)) {
+        //console.log('Editor cnaDelete false');
+        return false; //hidden
       } else {
-        return false;
+        //console.log('User canDelete false');
+        return false; //hidden
       }
     }
 }

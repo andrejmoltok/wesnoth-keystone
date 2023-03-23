@@ -34,9 +34,54 @@ var isSignedIn = ({ session: session2 }) => {
   return !!session2;
 };
 var permissions = {
-  admin: ({ session: session2 }) => !!session2?.data.role?.admin,
-  editor: ({ session: session2 }) => !!session2?.data.role?.editor,
-  user: ({ session: session2 }) => !!session2?.data.role?.user
+  Admin: ({ session: session2 }) => {
+    return !!session2?.data.role?.admin;
+  },
+  //false
+  Szerkeszt\u0151: ({ session: session2 }) => {
+    return !!session2?.data.role?.editor;
+  },
+  //false
+  Felhaszn\u00E1l\u00F3: ({ session: session2 }) => {
+    return !!session2?.data.role?.user;
+  }
+  //false
+};
+var rules = {
+  canCreate: ({ session: session2 }) => {
+    if (!session2) {
+      return false;
+    } else if (!!permissions.Admin(session2)) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  canRead: ({ session: session2 }) => {
+    if (!session2) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  canUpdate: ({ session: session2 }) => {
+    if (!session2) {
+      return false;
+    } else {
+      return true;
+    }
+  },
+  canDelete: ({ session: session2 }) => {
+    if (!session2) {
+      return false;
+    } else if (!!permissions.Admin(session2)) {
+      return true;
+    } else if (!!permissions.Szerkeszt\u0151(session2)) {
+      return false;
+    } else {
+      return false;
+    }
+  }
 };
 
 // schema.ts
@@ -46,8 +91,15 @@ var lists = {
   User: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn)
+        ...(0, import_access.allOperations)(isSignedIn),
+        query: (session2) => rules.canRead(session2),
+        update: (session2) => rules.canUpdate(session2),
+        delete: (session2) => rules.canDelete(session2)
       }
+    },
+    ui: {
+      hideCreate: (session2) => rules.canCreate(session2),
+      hideDelete: (session2) => rules.canDelete(session2)
     },
     // this is the fields for our User list
     fields: {
@@ -65,7 +117,10 @@ var lists = {
         ref: "Race",
         many: false,
         ui: {
-          description: "Can only be changed by admins or editors"
+          description: "Can only be changed by admins"
+        },
+        access: {
+          update: permissions.Admin
         }
       }),
       role: (0, import_fields.relationship)({
@@ -73,6 +128,9 @@ var lists = {
         many: false,
         ui: {
           description: "Can only be changed by admins"
+        },
+        access: {
+          update: permissions.Admin
         }
       }),
       // we can use this field to see what Posts this User has authored
@@ -88,9 +146,14 @@ var lists = {
     access: {
       operation: {
         ...(0, import_access.allOperations)(isSignedIn),
-        delete: permissions.admin,
-        update: permissions.admin
+        query: (session2) => rules.canRead(session2),
+        update: (session2) => rules.canUpdate(session2),
+        delete: (session2) => rules.canDelete(session2)
       }
+    },
+    ui: {
+      hideCreate: (session2) => rules.canCreate(session2),
+      hideDelete: (session2) => rules.canDelete(session2)
     },
     fields: {
       name: (0, import_fields.text)({
@@ -111,15 +174,15 @@ var lists = {
         options: [
           {
             label: "Admin",
-            value: "admin"
+            value: "Admin"
           },
           {
             label: "Szerkeszt\u0151",
-            value: "editor"
+            value: "Szerkeszt\u0151"
           },
           {
             label: "Felhaszn\xE1l\xF3",
-            value: "user"
+            value: "Felhaszn\xE1l\xF3"
           }
         ]
       })
@@ -128,7 +191,10 @@ var lists = {
   Post: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn)
+        ...(0, import_access.allOperations)(isSignedIn),
+        query: (session2) => rules.canRead(session2),
+        update: (session2) => rules.canUpdate(session2),
+        delete: permissions.Admin
       }
     },
     // this is the fields for our Post list
@@ -184,17 +250,21 @@ var lists = {
     access: {
       operation: {
         ...(0, import_access.allOperations)(isSignedIn),
-        query: ({ session: session2, context, listKey, operation }) => true,
-        update: permissions.admin,
-        delete: permissions.admin
+        query: (session2) => rules.canRead(session2),
+        update: (session2) => rules.canUpdate(session2),
+        delete: permissions.Admin
       }
+    },
+    ui: {
+      hideCreate: (session2) => rules.canCreate(session2),
+      hideDelete: (session2) => rules.canDelete(session2)
     },
     fields: {
       name: (0, import_fields.text)({
         isIndexed: "unique",
         hooks: {
           resolveInput: ({ operation, resolvedData, inputData }) => {
-            if (operation === "create") {
+            if (operation === "create" || operation === "update") {
               return inputData.races;
             }
             return resolvedData.name;
@@ -377,7 +447,6 @@ var keystone_default = withAuth(
         // serverRoute: null
         storagePath: "public/images"
       }
-      /** more storage */
     }
   })
 );

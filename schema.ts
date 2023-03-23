@@ -35,7 +35,15 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
-      }
+        query: (session) => rules.canRead(session),
+        update: (session) => rules.canUpdate(session),
+        delete: (session) => rules.canDelete(session),
+      },
+    },
+    
+    ui: {
+      hideCreate: (session) => rules.canCreate(session),
+      hideDelete: (session) => rules.canDelete(session),
     },
 
     // this is the fields for our User list
@@ -55,7 +63,10 @@ export const lists: Lists = {
       race: relationship({ 
         ref: 'Race', many: false,
         ui: {
-          description: 'Can only be changed by admins or editors',
+          description: 'Can only be changed by admins',
+        },
+        access: {
+          update: permissions.Admin,
         }
       }),
 
@@ -63,6 +74,9 @@ export const lists: Lists = {
         ref: 'Role', many: false,
         ui: {
             description: 'Can only be changed by admins',
+        },
+        access: {
+          update: permissions.Admin,
         }
       }),
 
@@ -81,9 +95,14 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
-        delete: permissions.admin,
-        update: permissions.admin,
+        query: (session) => rules.canRead(session),
+        update: (session) => rules.canUpdate(session),
+        delete: (session) => rules.canDelete(session),
       }
+    },
+    ui: {
+      hideCreate: (session) => rules.canCreate(session),
+      hideDelete: (session) => rules.canDelete(session),
     },
     fields: {
       name: text({
@@ -104,15 +123,15 @@ export const lists: Lists = {
         options: [
           {
             label: 'Admin',
-            value: 'admin',
+            value: 'Admin',
           },
           {
             label: 'Szerkesztő',
-            value: 'editor'
+            value: 'Szerkesztő'
           },
           {
             label: 'Felhasználó',
-            value: 'user'
+            value: 'Felhasználó'
           }
         ]
       }),
@@ -123,6 +142,9 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
+        query: (session) => rules.canRead(session),
+        update: (session) => rules.canUpdate(session),
+        delete: permissions.Admin,
       }
     },
 
@@ -187,17 +209,21 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
-        query: ({ session, context, listKey, operation }) => true,
-        update: permissions.admin,
-        delete: permissions.admin,
+        query: (session) => rules.canRead(session),
+        update: (session) => rules.canUpdate(session),
+        delete: permissions.Admin,
       }
+    },
+    ui: {
+      hideCreate: (session) => rules.canCreate(session),
+      hideDelete: (session) => rules.canDelete(session),
     },
     fields: {
       name: text({
         isIndexed: 'unique',
         hooks: {
           resolveInput: ({operation,resolvedData,inputData}) => {
-            if (operation === 'create') {
+            if (operation === 'create' || operation === 'update') {
               return inputData.races
             }
             return resolvedData.name
