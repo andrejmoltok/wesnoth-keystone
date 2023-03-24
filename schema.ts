@@ -37,8 +37,8 @@ export const lists: Lists = {
       operation: {
         create: ({ session, context, listKey, operation }) => true,
         query: ({ session, context, listKey, operation }) => true,
-        update: (session) => rules.canUpdate(session),
-        delete: (session) => rules.canDelete(session),
+        update: ({ session, context, listKey, operation }) => true,
+        delete: ({ session, context, listKey, operation }) => true,
       },
     },
     ui: {
@@ -110,6 +110,8 @@ export const lists: Lists = {
       operation: {
         create: ({ session, context, listKey, operation }) => true,
         query: ({ session, context, listKey, operation }) => true,
+        update: ({ session, context, listKey, operation }) => true,
+        delete: ({ session, context, listKey, operation }) => true,
       }
     },
 
@@ -175,6 +177,8 @@ export const lists: Lists = {
       operation: {
         create: ({ session, context, listKey, operation }) => true,
         query: ({ session, context, listKey, operation }) => true,
+        update: ({ session, context, listKey, operation }) => true,
+        delete: ({ session, context, listKey, operation }) => true,
       },
     },
     ui: {

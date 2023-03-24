@@ -93,8 +93,8 @@ var lists = {
       operation: {
         create: ({ session: session2, context, listKey, operation }) => true,
         query: ({ session: session2, context, listKey, operation }) => true,
-        update: (session2) => rules.canUpdate(session2),
-        delete: (session2) => rules.canDelete(session2)
+        update: ({ session: session2, context, listKey, operation }) => true,
+        delete: ({ session: session2, context, listKey, operation }) => true
       }
     },
     ui: {
@@ -159,7 +159,9 @@ var lists = {
     access: {
       operation: {
         create: ({ session: session2, context, listKey, operation }) => true,
-        query: ({ session: session2, context, listKey, operation }) => true
+        query: ({ session: session2, context, listKey, operation }) => true,
+        update: ({ session: session2, context, listKey, operation }) => true,
+        delete: ({ session: session2, context, listKey, operation }) => true
       }
     },
     // this is the fields for our Post list
@@ -215,7 +217,9 @@ var lists = {
     access: {
       operation: {
         create: ({ session: session2, context, listKey, operation }) => true,
-        query: ({ session: session2, context, listKey, operation }) => true
+        query: ({ session: session2, context, listKey, operation }) => true,
+        update: ({ session: session2, context, listKey, operation }) => true,
+        delete: ({ session: session2, context, listKey, operation }) => true
       }
     },
     ui: {
