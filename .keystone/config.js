@@ -34,16 +34,19 @@ var isSignedIn = ({ session: session2 }) => {
   return !!session2;
 };
 var permissions = {
-  Admin: ({ session: session2 }) => {
-    return !!session2?.data.role?.admin;
+  isAdmin: ({ session: session2 }) => {
+    console.log("Admin", !!session2?.data.isAdmin);
+    return !!session2?.data.isAdmin;
   },
   //false
-  Szerkeszt\u0151: ({ session: session2 }) => {
-    return !!session2?.data.role?.editor;
+  isEditor: ({ session: session2 }) => {
+    console.log("Editor", !!session2?.data.isEditor);
+    return !!session2?.data.isEditor;
   },
   //false
-  Felhaszn\u00E1l\u00F3: ({ session: session2 }) => {
-    return !!session2?.data.role?.user;
+  isUser: ({ session: session2 }) => {
+    console.log("User", !!session2?.data.isUser);
+    return !!session2?.data.isUser;
   }
   //false
 };
@@ -51,9 +54,11 @@ var rules = {
   canCreate: ({ session: session2 }) => {
     if (!session2) {
       return false;
-    } else if (!!permissions.Admin(session2)) {
+    } else if (!!session2?.data.isAdmin) {
+      console.log("isAdmin ", !!session2?.data.isAdmin);
       return false;
     } else {
+      console.log("isEditor, isUser ", !!session2?.data.isEditor, !!session2?.data.isUser);
       return true;
     }
   },
@@ -67,19 +72,22 @@ var rules = {
   canUpdate: ({ session: session2 }) => {
     if (!session2) {
       return false;
-    } else {
+    } else if (!!session2?.data.isAdmin || !!session2?.data.isEditor) {
+      console.log("canUpdate isAdmin isEditor, isUser ", !!session2?.data.isAdmin, !!session2?.data.isEditor, !!session2?.data.isUser);
       return true;
+    } else {
+      return false;
     }
   },
   canDelete: ({ session: session2 }) => {
     if (!session2) {
       return false;
-    } else if (!!permissions.Admin(session2)) {
-      return true;
-    } else if (!!permissions.Szerkeszt\u0151(session2)) {
+    } else if (!!session2?.data.isAdmin) {
+      console.log("isAdmin ", !!session2?.data.isAdmin);
       return false;
     } else {
-      return false;
+      console.log("isEditor, isUser ", !!session2?.data.isEditor, !!session2?.data.isUser);
+      return true;
     }
   }
 };
@@ -92,6 +100,7 @@ var lists = {
     access: {
       operation: {
         ...(0, import_access.allOperations)(isSignedIn),
+        create: (session2) => rules.canCreate(session2),
         query: (session2) => rules.canRead(session2),
         update: (session2) => rules.canUpdate(session2),
         delete: (session2) => rules.canDelete(session2)
@@ -103,7 +112,12 @@ var lists = {
     },
     // this is the fields for our User list
     fields: {
-      name: (0, import_fields.text)({ validation: { isRequired: true } }),
+      name: (0, import_fields.text)({
+        validation: { isRequired: true },
+        access: {
+          update: (session2) => rules.canUpdate(session2)
+        }
+      }),
       email: (0, import_fields.text)({
         validation: { isRequired: true },
         // by adding isIndexed: 'unique', we're saying that no user can have the same
@@ -120,17 +134,31 @@ var lists = {
           description: "Can only be changed by admins"
         },
         access: {
-          update: permissions.Admin
+          update: permissions.isAdmin
         }
       }),
-      role: (0, import_fields.relationship)({
-        ref: "Role",
-        many: false,
-        ui: {
-          description: "Can only be changed by admins"
-        },
+      isAdmin: (0, import_fields.checkbox)({
+        defaultValue: false,
         access: {
-          update: permissions.Admin
+          update: permissions.isAdmin
+        }
+      }),
+      isEditor: (0, import_fields.checkbox)({
+        defaultValue: false,
+        access: {
+          update: permissions.isAdmin
+        }
+      }),
+      isUser: (0, import_fields.checkbox)({
+        defaultValue: false,
+        access: {
+          update: (session2) => rules.canUpdate(session2)
+        }
+      }),
+      isPending: (0, import_fields.checkbox)({
+        defaultValue: false,
+        access: {
+          update: (session2) => rules.canUpdate(session2)
         }
       }),
       // we can use this field to see what Posts this User has authored
@@ -142,59 +170,13 @@ var lists = {
       })
     }
   }),
-  Role: (0, import_core.list)({
-    access: {
-      operation: {
-        ...(0, import_access.allOperations)(isSignedIn),
-        query: (session2) => rules.canRead(session2),
-        update: (session2) => rules.canUpdate(session2),
-        delete: (session2) => rules.canDelete(session2)
-      }
-    },
-    ui: {
-      hideCreate: (session2) => rules.canCreate(session2),
-      hideDelete: (session2) => rules.canDelete(session2)
-    },
-    fields: {
-      name: (0, import_fields.text)({
-        isIndexed: "unique",
-        hooks: {
-          resolveInput: ({ operation, resolvedData, inputData }) => {
-            if (operation === "create") {
-              return inputData.role;
-            }
-            return resolvedData.name;
-          }
-        }
-      }),
-      role: (0, import_fields.select)({
-        type: "string",
-        defaultValue: "",
-        db: { map: "role" },
-        options: [
-          {
-            label: "Admin",
-            value: "Admin"
-          },
-          {
-            label: "Szerkeszt\u0151",
-            value: "Szerkeszt\u0151"
-          },
-          {
-            label: "Felhaszn\xE1l\xF3",
-            value: "Felhaszn\xE1l\xF3"
-          }
-        ]
-      })
-    }
-  }),
   Post: (0, import_core.list)({
     access: {
       operation: {
         ...(0, import_access.allOperations)(isSignedIn),
         query: (session2) => rules.canRead(session2),
         update: (session2) => rules.canUpdate(session2),
-        delete: permissions.Admin
+        delete: (session2) => rules.canDelete(session2)
       }
     },
     // this is the fields for our Post list
@@ -252,7 +234,7 @@ var lists = {
         ...(0, import_access.allOperations)(isSignedIn),
         query: (session2) => rules.canRead(session2),
         update: (session2) => rules.canUpdate(session2),
-        delete: permissions.Admin
+        delete: (session2) => rules.canDelete(session2)
       }
     },
     ui: {
@@ -397,10 +379,7 @@ if (!sessionSecret && process.env.NODE_ENV !== "production") {
 var { withAuth } = (0, import_auth.createAuth)({
   listKey: "User",
   identityField: "email",
-  // this is a GraphQL query fragment for fetching what data will be attached to a context.session
-  //   this can be helpful for when you are writing your access control functions
-  //   you can find out more at https://keystonejs.com/docs/guides/auth-and-access-control
-  sessionData: "name createdAt",
+  sessionData: "name isAdmin isEditor isUser",
   secretField: "password",
   // WARNING: remove initFirstItem functionality in production
   //   see https://keystonejs.com/docs/config/auth#init-first-item for more

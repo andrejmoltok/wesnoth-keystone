@@ -3,13 +3,10 @@ export type Session = {
   listKey: string;
   data: {
     name: string;
-    role?: {
-      id: string;
-      name: string;
-      admin: boolean;
-      editor: boolean;
-      user: boolean;
-    };
+    id: string;
+    isAdmin: boolean;
+    isEditor: boolean;
+    isUser: boolean;
   };
 };
 

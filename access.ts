@@ -5,12 +5,12 @@ export const isSignedIn = ({ session }: ListAccessArgs) => {
 };
 
 export const permissions = {
-    Admin: ({ session }: ListAccessArgs) => {//console.log('Admin',!!session?.data.role?.admin);
-      return !!session?.data.role?.admin}, //false
-    Szerkesztő: ({ session }: ListAccessArgs) => {//console.log('Editor',!!session?.data.role?.editor); 
-      return !!session?.data.role?.editor}, //false
-    Felhasználó: ({ session }: ListAccessArgs) => {//console.log('User',!!session?.data.role?.user); 
-      return !!session?.data.role?.user}, //false
+    isAdmin: ({ session }: ListAccessArgs) => {console.log('Admin',!!session?.data.isAdmin);
+      return !!session?.data.isAdmin}, //false
+    isEditor: ({ session }: ListAccessArgs) => {console.log('Editor',!!session?.data.isEditor); 
+      return !!session?.data.isEditor}, //false
+    isUser: ({ session }: ListAccessArgs) => {console.log('User', !!session?.data.isUser); 
+      return !!session?.data.isUser}, //false
 };
 
 export const rules = {
@@ -18,13 +18,13 @@ export const rules = {
       if (!session) {
         // No session? No people.
         return false;
-      } else if (!!permissions.Admin(session)) {
-        //console.log('Admin canCreate hidden false');
+      } else if (!!session?.data.isAdmin) {
+        console.log('isAdmin ',!!session?.data.isAdmin);
         // Can create everyone
         return false; //hidden
       } else {
         // cannot create
-        //console.log('Editor-User canCreate hidden true');
+        console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
         return true; //hidden
       }
     },
@@ -40,24 +40,24 @@ export const rules = {
         if (!session) {
           // No session? No people.
           return false;
-        } else {
+        } else if (!!session?.data.isAdmin || !!session?.data.isEditor) {
+          console.log('canUpdate isAdmin isEditor, isUser ',!!session?.data.isAdmin, !!session?.data.isEditor, !!session?.data.isUser);
           return true;
+        } else {
+          return false;
         }
     },
     canDelete: ({ session }: ListAccessArgs) => {
       if (!session) {
         // No session? No people.
         return false;
-      } else if (!!permissions.Admin(session)) {
+      } else if (!!session?.data.isAdmin) {
         // Can delete everyone
-        //console.log('Admin canDelete true');
-        return true; //hidden
-      } else if (!!permissions.Szerkesztő(session)) {
-        //console.log('Editor cnaDelete false');
+        console.log('isAdmin ',!!session?.data.isAdmin);
         return false; //hidden
       } else {
-        //console.log('User canDelete false');
-        return false; //hidden
+        console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
+        return true; //hidden
       }
     }
 }

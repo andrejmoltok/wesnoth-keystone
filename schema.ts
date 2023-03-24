@@ -5,7 +5,7 @@
 // If you want to learn more about how lists are configured, please read
 // - https://keystonejs.com/docs/config/lists
 
-import { list } from '@keystone-6/core';
+import { group, list } from '@keystone-6/core';
 import { allOperations } from '@keystone-6/core/access';
 
 import { isSignedIn, permissions, rules } from './access';
@@ -35,12 +35,12 @@ export const lists: Lists = {
     access: {
       operation: {
         ...allOperations(isSignedIn),
+        create: (session) => rules.canCreate(session),
         query: (session) => rules.canRead(session),
         update: (session) => rules.canUpdate(session),
         delete: (session) => rules.canDelete(session),
       },
     },
-    
     ui: {
       hideCreate: (session) => rules.canCreate(session),
       hideDelete: (session) => rules.canDelete(session),
@@ -48,7 +48,12 @@ export const lists: Lists = {
 
     // this is the fields for our User list
     fields: {
-      name: text({ validation: { isRequired: true } }),
+      
+      name: text({
+        validation: { isRequired: true },
+        access: {
+          update: (session) => rules.canUpdate(session),
+        }, }),
 
       email: text({
         validation: { isRequired: true },
@@ -66,18 +71,33 @@ export const lists: Lists = {
           description: 'Can only be changed by admins',
         },
         access: {
-          update: permissions.Admin,
+          update: permissions.isAdmin,
         }
       }),
 
-      role: relationship({ 
-        ref: 'Role', many: false,
-        ui: {
-            description: 'Can only be changed by admins',
-        },
+      isAdmin: checkbox({
+        defaultValue: false,
         access: {
-          update: permissions.Admin,
-        }
+          update: permissions.isAdmin
+        },
+      }),
+      isEditor: checkbox({
+        defaultValue: false,
+        access: {
+          update: permissions.isAdmin
+        },
+      }),
+      isUser: checkbox({
+        defaultValue: false,
+        access: {
+          update: (session) => rules.canUpdate(session),
+        },
+      }),
+      isPending: checkbox({
+        defaultValue: false,
+        access: {
+          update: (session) => rules.canUpdate(session),
+        },
       }),
 
       // we can use this field to see what Posts this User has authored
@@ -91,60 +111,13 @@ export const lists: Lists = {
     },
   }),
 
-  Role: list({
-    access: {
-      operation: {
-        ...allOperations(isSignedIn),
-        query: (session) => rules.canRead(session),
-        update: (session) => rules.canUpdate(session),
-        delete: (session) => rules.canDelete(session),
-      }
-    },
-    ui: {
-      hideCreate: (session) => rules.canCreate(session),
-      hideDelete: (session) => rules.canDelete(session),
-    },
-    fields: {
-      name: text({
-        isIndexed: 'unique',
-        hooks: {
-          resolveInput: ({operation,resolvedData,inputData}) => {
-            if (operation === 'create') {
-              return inputData.role
-            }
-            return resolvedData.name
-          }
-        }
-      }),
-      role: select({
-        type: 'string',
-        defaultValue: '',
-        db: { map: 'role'},
-        options: [
-          {
-            label: 'Admin',
-            value: 'Admin',
-          },
-          {
-            label: 'Szerkesztő',
-            value: 'Szerkesztő'
-          },
-          {
-            label: 'Felhasználó',
-            value: 'Felhasználó'
-          }
-        ]
-      }),
-    },
-  }),
-
   Post: list({
     access: {
       operation: {
         ...allOperations(isSignedIn),
         query: (session) => rules.canRead(session),
         update: (session) => rules.canUpdate(session),
-        delete: permissions.Admin,
+        delete: (session) => rules.canDelete(session),
       }
     },
 
@@ -211,7 +184,7 @@ export const lists: Lists = {
         ...allOperations(isSignedIn),
         query: (session) => rules.canRead(session),
         update: (session) => rules.canUpdate(session),
-        delete: permissions.Admin,
+        delete: (session) => rules.canDelete(session),
       }
     },
     ui: {

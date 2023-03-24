@@ -18,20 +18,14 @@ model User {
   password  String
   race      Race?     @relation("User_race", fields: [raceId], references: [id])
   raceId    String?   @map("race")
-  role      Role?     @relation("User_role", fields: [roleId], references: [id])
-  roleId    String?   @map("role")
+  isAdmin   Boolean   @default(false)
+  isEditor  Boolean   @default(false)
+  isUser    Boolean   @default(false)
+  isPending Boolean   @default(false)
   posts     Post[]    @relation("Post_author")
   createdAt DateTime? @default(now())
 
   @@index([raceId])
-  @@index([roleId])
-}
-
-model Role {
-  id             String  @id @default(cuid())
-  name           String  @unique @default("")
-  role           String? @default("") @map("role")
-  from_User_role User[]  @relation("User_role")
 }
 
 model Post {
