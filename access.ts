@@ -5,11 +5,11 @@ export const isSignedIn = ({ session }: ListAccessArgs) => {
 };
 
 export const permissions = {
-    isAdmin: ({ session }: ListAccessArgs) => {console.log('Admin',!!session?.data.isAdmin);
+    isAdmin: ({ session }: ListAccessArgs) => {//console.log('Admin',!!session?.data.isAdmin);
       return !!session?.data.isAdmin}, //false
-    isEditor: ({ session }: ListAccessArgs) => {console.log('Editor',!!session?.data.isEditor); 
+    isEditor: ({ session }: ListAccessArgs) => {//console.log('Editor',!!session?.data.isEditor); 
       return !!session?.data.isEditor}, //false
-    isUser: ({ session }: ListAccessArgs) => {console.log('User', !!session?.data.isUser); 
+    isUser: ({ session }: ListAccessArgs) => {//console.log('User', !!session?.data.isUser); 
       return !!session?.data.isUser}, //false
 };
 
@@ -19,12 +19,12 @@ export const rules = {
         // No session? No people.
         return false;
       } else if (!!session?.data.isAdmin) {
-        console.log('isAdmin ',!!session?.data.isAdmin);
+        //console.log('isAdmin ',!!session?.data.isAdmin);
         // Can create everyone
         return false; //hidden
       } else {
         // cannot create
-        console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
+        //console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
         return true; //hidden
       }
     },
@@ -41,7 +41,7 @@ export const rules = {
           // No session? No people.
           return false;
         } else if (!!session?.data.isAdmin || !!session?.data.isEditor) {
-          console.log('canUpdate isAdmin isEditor, isUser ',!!session?.data.isAdmin, !!session?.data.isEditor, !!session?.data.isUser);
+          //console.log('canUpdate isAdmin isEditor, isUser ',!!session?.data.isAdmin, !!session?.data.isEditor, !!session?.data.isUser);
           return true;
         } else {
           return false;
@@ -53,10 +53,10 @@ export const rules = {
         return false;
       } else if (!!session?.data.isAdmin) {
         // Can delete everyone
-        console.log('isAdmin ',!!session?.data.isAdmin);
+        //console.log('isAdmin ',!!session?.data.isAdmin);
         return false; //hidden
       } else {
-        console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
+        //console.log('isEditor, isUser ',!!session?.data.isEditor, !!session?.data.isUser);
         return true; //hidden
       }
     }

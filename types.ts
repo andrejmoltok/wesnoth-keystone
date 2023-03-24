@@ -2,8 +2,8 @@ export type Session = {
   itemId: string;
   listKey: string;
   data: {
-    name: string;
     id: string;
+    name: string;
     isAdmin: boolean;
     isEditor: boolean;
     isUser: boolean;

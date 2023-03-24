@@ -5,8 +5,8 @@
 // If you want to learn more about how lists are configured, please read
 // - https://keystonejs.com/docs/config/lists
 
-import { group, list } from '@keystone-6/core';
-import { allOperations } from '@keystone-6/core/access';
+import { list } from '@keystone-6/core';
+import { allOperations, allowAll } from '@keystone-6/core/access';
 
 import { isSignedIn, permissions, rules } from './access';
 
@@ -30,13 +30,13 @@ import { document } from '@keystone-6/fields-document';
 // the generated types from '.keystone/types'
 import type { Lists } from '.keystone/types';
 
+
 export const lists: Lists = {
   User: list({
     access: {
       operation: {
-        ...allOperations(isSignedIn),
-        create: (session) => rules.canCreate(session),
-        query: (session) => rules.canRead(session),
+        create: ({ session, context, listKey, operation }) => true,
+        query: ({ session, context, listKey, operation }) => true,
         update: (session) => rules.canUpdate(session),
         delete: (session) => rules.canDelete(session),
       },
@@ -67,12 +67,6 @@ export const lists: Lists = {
 
       race: relationship({ 
         ref: 'Race', many: false,
-        ui: {
-          description: 'Can only be changed by admins',
-        },
-        access: {
-          update: permissions.isAdmin,
-        }
       }),
 
       isAdmin: checkbox({
@@ -114,10 +108,8 @@ export const lists: Lists = {
   Post: list({
     access: {
       operation: {
-        ...allOperations(isSignedIn),
-        query: (session) => rules.canRead(session),
-        update: (session) => rules.canUpdate(session),
-        delete: (session) => rules.canDelete(session),
+        create: ({ session, context, listKey, operation }) => true,
+        query: ({ session, context, listKey, operation }) => true,
       }
     },
 
@@ -181,11 +173,9 @@ export const lists: Lists = {
   Race: list({
     access: {
       operation: {
-        ...allOperations(isSignedIn),
-        query: (session) => rules.canRead(session),
-        update: (session) => rules.canUpdate(session),
-        delete: (session) => rules.canDelete(session),
-      }
+        create: ({ session, context, listKey, operation }) => true,
+        query: ({ session, context, listKey, operation }) => true,
+      },
     },
     ui: {
       hideCreate: (session) => rules.canCreate(session),

@@ -6,6 +6,7 @@
 //   you can find out more at https://keystonejs.com/docs/apis/config
 
 import { config } from '@keystone-6/core';
+import type { ServerConfig } from '@keystone-6/core/types';
 
 // to keep this file tidy, we define our schema in a different file
 import { lists } from './schema';
@@ -41,6 +42,10 @@ export default withAuth(
         // serverRoute: null
         storagePath: 'public/images',
       }
+    },
+    server: {
+      cors: { origin: ['http://localhost:8000'], credentials: true },
+      port: 3000,
     }
   })
 );

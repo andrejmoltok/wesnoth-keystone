@@ -35,17 +35,14 @@ var isSignedIn = ({ session: session2 }) => {
 };
 var permissions = {
   isAdmin: ({ session: session2 }) => {
-    console.log("Admin", !!session2?.data.isAdmin);
     return !!session2?.data.isAdmin;
   },
   //false
   isEditor: ({ session: session2 }) => {
-    console.log("Editor", !!session2?.data.isEditor);
     return !!session2?.data.isEditor;
   },
   //false
   isUser: ({ session: session2 }) => {
-    console.log("User", !!session2?.data.isUser);
     return !!session2?.data.isUser;
   }
   //false
@@ -55,10 +52,8 @@ var rules = {
     if (!session2) {
       return false;
     } else if (!!session2?.data.isAdmin) {
-      console.log("isAdmin ", !!session2?.data.isAdmin);
       return false;
     } else {
-      console.log("isEditor, isUser ", !!session2?.data.isEditor, !!session2?.data.isUser);
       return true;
     }
   },
@@ -73,7 +68,6 @@ var rules = {
     if (!session2) {
       return false;
     } else if (!!session2?.data.isAdmin || !!session2?.data.isEditor) {
-      console.log("canUpdate isAdmin isEditor, isUser ", !!session2?.data.isAdmin, !!session2?.data.isEditor, !!session2?.data.isUser);
       return true;
     } else {
       return false;
@@ -83,10 +77,8 @@ var rules = {
     if (!session2) {
       return false;
     } else if (!!session2?.data.isAdmin) {
-      console.log("isAdmin ", !!session2?.data.isAdmin);
       return false;
     } else {
-      console.log("isEditor, isUser ", !!session2?.data.isEditor, !!session2?.data.isUser);
       return true;
     }
   }
@@ -99,9 +91,8 @@ var lists = {
   User: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn),
-        create: (session2) => rules.canCreate(session2),
-        query: (session2) => rules.canRead(session2),
+        create: ({ session: session2, context, listKey, operation }) => true,
+        query: ({ session: session2, context, listKey, operation }) => true,
         update: (session2) => rules.canUpdate(session2),
         delete: (session2) => rules.canDelete(session2)
       }
@@ -129,13 +120,7 @@ var lists = {
       }),
       race: (0, import_fields.relationship)({
         ref: "Race",
-        many: false,
-        ui: {
-          description: "Can only be changed by admins"
-        },
-        access: {
-          update: permissions.isAdmin
-        }
+        many: false
       }),
       isAdmin: (0, import_fields.checkbox)({
         defaultValue: false,
@@ -173,10 +158,8 @@ var lists = {
   Post: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn),
-        query: (session2) => rules.canRead(session2),
-        update: (session2) => rules.canUpdate(session2),
-        delete: (session2) => rules.canDelete(session2)
+        create: ({ session: session2, context, listKey, operation }) => true,
+        query: ({ session: session2, context, listKey, operation }) => true
       }
     },
     // this is the fields for our Post list
@@ -231,10 +214,8 @@ var lists = {
   Race: (0, import_core.list)({
     access: {
       operation: {
-        ...(0, import_access.allOperations)(isSignedIn),
-        query: (session2) => rules.canRead(session2),
-        update: (session2) => rules.canUpdate(session2),
-        delete: (session2) => rules.canDelete(session2)
+        create: ({ session: session2, context, listKey, operation }) => true,
+        query: ({ session: session2, context, listKey, operation }) => true
       }
     },
     ui: {
@@ -372,14 +353,14 @@ var lists = {
 var import_crypto = require("crypto");
 var import_auth = require("@keystone-6/auth");
 var import_session = require("@keystone-6/core/session");
-var sessionSecret = "cl32flyX0cj3ah9OdI1AgP7ooFHji48a";
+var sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret && process.env.NODE_ENV !== "production") {
   sessionSecret = (0, import_crypto.randomBytes)(32).toString("hex");
 }
 var { withAuth } = (0, import_auth.createAuth)({
   listKey: "User",
   identityField: "email",
-  sessionData: "name isAdmin isEditor isUser",
+  sessionData: "name id isAdmin isEditor isUser",
   secretField: "password",
   // WARNING: remove initFirstItem functionality in production
   //   see https://keystonejs.com/docs/config/auth#init-first-item for more
@@ -426,6 +407,10 @@ var keystone_default = withAuth(
         // serverRoute: null
         storagePath: "public/images"
       }
+    },
+    server: {
+      cors: { origin: ["http://localhost:8000"], credentials: true },
+      port: 3e3
     }
   })
 );

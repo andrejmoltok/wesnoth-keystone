@@ -23,7 +23,7 @@ import { statelessSessions } from '@keystone-6/core/session';
 
 // for a stateless session, a SESSION_SECRET should always be provided
 //   especially in production (statelessSessions will throw if SESSION_SECRET is undefined)
-let sessionSecret = 'cl32flyX0cj3ah9OdI1AgP7ooFHji48a';
+let sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret && process.env.NODE_ENV !== 'production') {
   sessionSecret = randomBytes(32).toString('hex');
 }
@@ -32,7 +32,7 @@ if (!sessionSecret && process.env.NODE_ENV !== 'production') {
 const { withAuth } = createAuth({
   listKey: 'User',
   identityField: 'email',
-  sessionData: 'name isAdmin isEditor isUser',
+  sessionData: 'name id isAdmin isEditor isUser',
   secretField: 'password',
 
   // WARNING: remove initFirstItem functionality in production
