@@ -1,4 +1,4 @@
-# Keystone Project Starter
+# Wesnoth portal with KeystoneJS CMS
 
 Welcome to Keystone!
 
