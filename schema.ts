@@ -19,10 +19,10 @@ export const lists: Lists = {
   User: list({
     access: {
       operation: {
-        create: ({ session, context, listKey, operation }) => true,
-        query: ({ session, context, listKey, operation }) => true,
-        update: ({ session, context, listKey, operation }) => true,
-        delete: ({ session, context, listKey, operation }) => true,
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true,
       },
     },
     ui: {
@@ -33,6 +33,7 @@ export const lists: Lists = {
     fields: {
       
       name: text({
+        isIndexed: 'unique',
         validation: { isRequired: true },
         access: {
           update: (session) => rules.canUpdate(session),
@@ -54,9 +55,18 @@ export const lists: Lists = {
         type: 'string',
         defaultValue: '',
         access: {
-          read: ({ session, context, listKey, operation }) => true,
-          update: permissions.isAdmin,
+          read: () => true,
+          update: ({session}) => permissions.isAdmin(session),
         },
+        // ui: {
+        //   itemView: {
+        //     fieldMode: ({ session }) => {
+        //       if (!!session?.data.isEditor) {
+        //         return "hidden";
+        //       }
+        //     }
+        //   }
+        // },
         options: [
           {
             label: 'Admin',
@@ -73,7 +83,7 @@ export const lists: Lists = {
         type: 'string',
         defaultValue: '',
         access: {
-          read: ({ session, context, listKey, operation }) => true,
+          read: () => true,
           update: (session) => rules.canUpdate(session),
         },
         options: [
@@ -121,7 +131,13 @@ export const lists: Lists = {
         }),
       }),
 
-      posts: relationship({ ref: 'Post.author', many: true }),
+      posts: relationship({ 
+        ref: 'Post.author', 
+        many: true,
+        access: {
+          update: (session) => permissions.isAdmin(session),
+        }
+      }),
 
       createdAt: timestamp({
         defaultValue: { kind: 'now' },
@@ -132,10 +148,10 @@ export const lists: Lists = {
   Post: list({
     access: {
       operation: {
-        create: ({ session, context, listKey, operation }) => true,
-        query: ({ session, context, listKey, operation }) => true,
-        update: ({ session, context, listKey, operation }) => true,
-        delete: ({ session, context, listKey, operation }) => true,
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true,
       }
     },
 
@@ -199,10 +215,10 @@ export const lists: Lists = {
   Race: list({
     access: {
       operation: {
-        create: ({ session, context, listKey, operation }) => true,
-        query: ({ session, context, listKey, operation }) => true,
-        update: ({ session, context, listKey, operation }) => true,
-        delete: ({ session, context, listKey, operation }) => true,
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true,
       },
     },
     ui: {

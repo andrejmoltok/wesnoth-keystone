@@ -13,7 +13,7 @@ generator client {
 
 model User {
   id        String    @id @default(cuid())
-  name      String    @default("")
+  name      String    @unique @default("")
   email     String    @unique @default("")
   password  String
   race      Race?     @relation("User_race", fields: [raceId], references: [id])

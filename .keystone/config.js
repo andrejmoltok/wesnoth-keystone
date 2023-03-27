@@ -91,10 +91,10 @@ var lists = {
   User: (0, import_core.list)({
     access: {
       operation: {
-        create: ({ session: session2, context, listKey, operation }) => true,
-        query: ({ session: session2, context, listKey, operation }) => true,
-        update: ({ session: session2, context, listKey, operation }) => true,
-        delete: ({ session: session2, context, listKey, operation }) => true
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true
       }
     },
     ui: {
@@ -103,6 +103,7 @@ var lists = {
     },
     fields: {
       name: (0, import_fields.text)({
+        isIndexed: "unique",
         validation: { isRequired: true },
         access: {
           update: (session2) => rules.canUpdate(session2)
@@ -123,9 +124,18 @@ var lists = {
         type: "string",
         defaultValue: "",
         access: {
-          read: ({ session: session2, context, listKey, operation }) => true,
-          update: permissions.isAdmin
+          read: () => true,
+          update: ({ session: session2 }) => permissions.isAdmin(session2)
         },
+        // ui: {
+        //   itemView: {
+        //     fieldMode: ({ session }) => {
+        //       if (!!session?.data.isEditor) {
+        //         return "hidden";
+        //       }
+        //     }
+        //   }
+        // },
         options: [
           {
             label: "Admin",
@@ -141,7 +151,7 @@ var lists = {
         type: "string",
         defaultValue: "",
         access: {
-          read: ({ session: session2, context, listKey, operation }) => true,
+          read: () => true,
           update: (session2) => rules.canUpdate(session2)
         },
         options: [
@@ -187,7 +197,13 @@ var lists = {
           }
         })
       }),
-      posts: (0, import_fields.relationship)({ ref: "Post.author", many: true }),
+      posts: (0, import_fields.relationship)({
+        ref: "Post.author",
+        many: true,
+        access: {
+          update: (session2) => permissions.isAdmin(session2)
+        }
+      }),
       createdAt: (0, import_fields.timestamp)({
         defaultValue: { kind: "now" }
       })
@@ -196,10 +212,10 @@ var lists = {
   Post: (0, import_core.list)({
     access: {
       operation: {
-        create: ({ session: session2, context, listKey, operation }) => true,
-        query: ({ session: session2, context, listKey, operation }) => true,
-        update: ({ session: session2, context, listKey, operation }) => true,
-        delete: ({ session: session2, context, listKey, operation }) => true
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true
       }
     },
     // this is the fields for our Post list
@@ -254,10 +270,10 @@ var lists = {
   Race: (0, import_core.list)({
     access: {
       operation: {
-        create: ({ session: session2, context, listKey, operation }) => true,
-        query: ({ session: session2, context, listKey, operation }) => true,
-        update: ({ session: session2, context, listKey, operation }) => true,
-        delete: ({ session: session2, context, listKey, operation }) => true
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true
       }
     },
     ui: {
