@@ -48,7 +48,11 @@ export const lists: Lists = {
         validation: { isRequired: true } }),
 
       race: relationship({ 
-        ref: 'Race', many: false,
+        ref: 'Race',
+        many: false,
+        access: {
+          update: ({session}) => permissions.isAdmin(session),
+        }
       }),
 
       adminRole: select({
