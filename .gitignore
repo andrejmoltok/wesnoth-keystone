@@ -3,3 +3,7 @@ node_modules
 keystone.db
 *.log
 .env
+.env*
+.flaskenv*
+!.env.project
+!.env.vault

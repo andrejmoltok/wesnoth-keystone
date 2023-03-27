@@ -1,17 +1,6 @@
-// Welcome to your schema
-//   Schema driven development is Keystone's modus operandi
-//
-// This file is where we define the lists, fields and hooks for our data.
-// If you want to learn more about how lists are configured, please read
-// - https://keystonejs.com/docs/config/lists
-
-import { list } from '@keystone-6/core';
-import { allOperations, allowAll } from '@keystone-6/core/access';
-
+import { list, graphql } from '@keystone-6/core';
+import { allOperations } from '@keystone-6/core/access';
 import { isSignedIn, permissions, rules } from './access';
-
-// see https://keystonejs.com/docs/fields/overview for the full list of fields
-//   this is a few common fields for an example
 import {
   text,
   relationship,
@@ -20,14 +9,9 @@ import {
   image,
   select,
   checkbox,
+  virtual
 } from '@keystone-6/core/fields';
-
-// the document field is a more complicated field, so it has it's own package
 import { document } from '@keystone-6/fields-document';
-// if you want to make your own fields, see https://keystonejs.com/docs/guides/custom-fields
-
-// when using Typescript, you can refine your types to a stricter subset by importing
-// the generated types from '.keystone/types'
 import type { Lists } from '.keystone/types';
 
 
@@ -46,7 +30,6 @@ export const lists: Lists = {
       hideDelete: (session) => rules.canDelete(session),
     },
 
-    // this is the fields for our User list
     fields: {
       
       name: text({
@@ -57,8 +40,6 @@ export const lists: Lists = {
 
       email: text({
         validation: { isRequired: true },
-        // by adding isIndexed: 'unique', we're saying that no user can have the same
-        // email as another user - this may or may not be a good idea for your project
         isIndexed: 'unique',
       }),
 
@@ -69,37 +50,80 @@ export const lists: Lists = {
         ref: 'Race', many: false,
       }),
 
-      isAdmin: checkbox({
-        defaultValue: false,
+      adminRole: select({
+        type: 'string',
+        defaultValue: '',
         access: {
-          update: permissions.isAdmin
+          read: ({ session, context, listKey, operation }) => true,
+          update: permissions.isAdmin,
         },
-      }),
-      isEditor: checkbox({
-        defaultValue: false,
-        access: {
-          update: permissions.isAdmin
-        },
-      }),
-      isUser: checkbox({
-        defaultValue: false,
-        access: {
-          update: (session) => rules.canUpdate(session),
-        },
-      }),
-      isPending: checkbox({
-        defaultValue: false,
-        access: {
-          update: (session) => rules.canUpdate(session),
-        },
+        options: [
+          {
+            label: 'Admin',
+            value: 'Admin',
+          },
+          {
+            label: 'Editor',
+            value: 'Editor',
+          },
+        ],
       }),
 
-      // we can use this field to see what Posts this User has authored
-      //   more on that in the Post list below
+      userRole: select({
+        type: 'string',
+        defaultValue: '',
+        access: {
+          read: ({ session, context, listKey, operation }) => true,
+          update: (session) => rules.canUpdate(session),
+        },
+        options: [
+          {
+            label: 'User',
+            value: 'User',
+          },
+          {
+            label: 'Pending',
+            value: 'Pending',
+          },
+        ],
+      }),
+
+      isAdmin: virtual({
+        field: graphql.field({
+          type: graphql.Boolean,
+          resolve(item) {
+            return item.adminRole === 'Admin';
+          }
+        }),
+      }),
+      isEditor: virtual({
+        field: graphql.field({
+          type: graphql.Boolean,
+          resolve(item) {
+            return item.adminRole === 'Editor';
+          }
+        }),
+      }),
+      isUser: virtual({
+        field: graphql.field({
+          type: graphql.Boolean,
+          resolve(item) {
+            return item.userRole === 'User';
+          }
+        }),
+      }),
+      isPending: virtual({
+        field: graphql.field({
+          type: graphql.Boolean,
+          resolve(item) {
+            return item.userRole === 'Pending';
+          }
+        }),
+      }),
+
       posts: relationship({ ref: 'Post.author', many: true }),
 
       createdAt: timestamp({
-        // this sets the timestamp to Date.now() when the user is first created
         defaultValue: { kind: 'now' },
       }),
     },

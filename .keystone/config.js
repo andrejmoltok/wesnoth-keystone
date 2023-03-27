@@ -101,7 +101,6 @@ var lists = {
       hideCreate: (session2) => rules.canCreate(session2),
       hideDelete: (session2) => rules.canDelete(session2)
     },
-    // this is the fields for our User list
     fields: {
       name: (0, import_fields.text)({
         validation: { isRequired: true },
@@ -111,8 +110,6 @@ var lists = {
       }),
       email: (0, import_fields.text)({
         validation: { isRequired: true },
-        // by adding isIndexed: 'unique', we're saying that no user can have the same
-        // email as another user - this may or may not be a good idea for your project
         isIndexed: "unique"
       }),
       password: (0, import_fields.password)({
@@ -122,35 +119,76 @@ var lists = {
         ref: "Race",
         many: false
       }),
-      isAdmin: (0, import_fields.checkbox)({
-        defaultValue: false,
+      adminRole: (0, import_fields.select)({
+        type: "string",
+        defaultValue: "",
         access: {
+          read: ({ session: session2, context, listKey, operation }) => true,
           update: permissions.isAdmin
-        }
+        },
+        options: [
+          {
+            label: "Admin",
+            value: "Admin"
+          },
+          {
+            label: "Editor",
+            value: "Editor"
+          }
+        ]
       }),
-      isEditor: (0, import_fields.checkbox)({
-        defaultValue: false,
+      userRole: (0, import_fields.select)({
+        type: "string",
+        defaultValue: "",
         access: {
-          update: permissions.isAdmin
-        }
-      }),
-      isUser: (0, import_fields.checkbox)({
-        defaultValue: false,
-        access: {
+          read: ({ session: session2, context, listKey, operation }) => true,
           update: (session2) => rules.canUpdate(session2)
-        }
+        },
+        options: [
+          {
+            label: "User",
+            value: "User"
+          },
+          {
+            label: "Pending",
+            value: "Pending"
+          }
+        ]
       }),
-      isPending: (0, import_fields.checkbox)({
-        defaultValue: false,
-        access: {
-          update: (session2) => rules.canUpdate(session2)
-        }
+      isAdmin: (0, import_fields.virtual)({
+        field: import_core.graphql.field({
+          type: import_core.graphql.Boolean,
+          resolve(item) {
+            return item.adminRole === "Admin";
+          }
+        })
       }),
-      // we can use this field to see what Posts this User has authored
-      //   more on that in the Post list below
+      isEditor: (0, import_fields.virtual)({
+        field: import_core.graphql.field({
+          type: import_core.graphql.Boolean,
+          resolve(item) {
+            return item.adminRole === "Editor";
+          }
+        })
+      }),
+      isUser: (0, import_fields.virtual)({
+        field: import_core.graphql.field({
+          type: import_core.graphql.Boolean,
+          resolve(item) {
+            return item.userRole === "User";
+          }
+        })
+      }),
+      isPending: (0, import_fields.virtual)({
+        field: import_core.graphql.field({
+          type: import_core.graphql.Boolean,
+          resolve(item) {
+            return item.userRole === "Pending";
+          }
+        })
+      }),
       posts: (0, import_fields.relationship)({ ref: "Post.author", many: true }),
       createdAt: (0, import_fields.timestamp)({
-        // this sets the timestamp to Date.now() when the user is first created
         defaultValue: { kind: "now" }
       })
     }
@@ -366,15 +404,8 @@ var { withAuth } = (0, import_auth.createAuth)({
   identityField: "email",
   sessionData: "name id isAdmin isEditor isUser",
   secretField: "password",
-  // WARNING: remove initFirstItem functionality in production
-  //   see https://keystonejs.com/docs/config/auth#init-first-item for more
   initFirstItem: {
-    // if there are no items in the database, by configuring this field
-    //   you are asking the Keystone AdminUI to create a new user
-    //   providing inputs for these fields
     fields: ["name", "email", "password"]
-    // it uses context.sudo() to do this, which bypasses any access control you might have
-    //   you shouldn't use this in production
   }
 });
 var sessionMaxAge = 60 * 60 * 24 * 30;

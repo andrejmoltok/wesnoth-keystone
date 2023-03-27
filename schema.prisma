@@ -18,10 +18,8 @@ model User {
   password  String
   race      Race?     @relation("User_race", fields: [raceId], references: [id])
   raceId    String?   @map("race")
-  isAdmin   Boolean   @default(false)
-  isEditor  Boolean   @default(false)
-  isUser    Boolean   @default(false)
-  isPending Boolean   @default(false)
+  adminRole String?   @default("")
+  userRole  String?   @default("")
   posts     Post[]    @relation("Post_author")
   createdAt DateTime? @default(now())
 

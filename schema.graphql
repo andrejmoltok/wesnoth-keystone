@@ -7,6 +7,8 @@ type User {
   email: String
   password: PasswordState
   race: Race
+  adminRole: String
+  userRole: String
   isAdmin: Boolean
   isEditor: Boolean
   isUser: Boolean
@@ -35,10 +37,8 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   race: RaceWhereInput
-  isAdmin: BooleanFilter
-  isEditor: BooleanFilter
-  isUser: BooleanFilter
-  isPending: BooleanFilter
+  adminRole: StringNullableFilter
+  userRole: StringNullableFilter
   posts: PostManyRelationFilter
   createdAt: DateTimeNullableFilter
 }
@@ -82,9 +82,32 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
-input BooleanFilter {
-  equals: Boolean
-  not: BooleanFilter
+input StringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
+}
+
+input NestedStringNullableFilter {
+  equals: String
+  in: [String!]
+  notIn: [String!]
+  lt: String
+  lte: String
+  gt: String
+  gte: String
+  contains: String
+  startsWith: String
+  endsWith: String
+  not: NestedStringNullableFilter
 }
 
 input PostManyRelationFilter {
@@ -108,10 +131,8 @@ input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
   email: OrderDirection
-  isAdmin: OrderDirection
-  isEditor: OrderDirection
-  isUser: OrderDirection
-  isPending: OrderDirection
+  adminRole: OrderDirection
+  userRole: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -125,10 +146,8 @@ input UserUpdateInput {
   email: String
   password: String
   race: RaceRelateToOneForUpdateInput
-  isAdmin: Boolean
-  isEditor: Boolean
-  isUser: Boolean
-  isPending: Boolean
+  adminRole: String
+  userRole: String
   posts: PostRelateToManyForUpdateInput
   createdAt: DateTime
 }
@@ -156,10 +175,8 @@ input UserCreateInput {
   email: String
   password: String
   race: RaceRelateToOneForCreateInput
-  isAdmin: Boolean
-  isEditor: Boolean
-  isUser: Boolean
-  isPending: Boolean
+  adminRole: String
+  userRole: String
   posts: PostRelateToManyForCreateInput
   createdAt: DateTime
 }
