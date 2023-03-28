@@ -48,7 +48,7 @@ var permissions = {
   //false
 };
 var rules = {
-  canCreate: ({ session: session2 }) => {
+  hideCreateButton: ({ session: session2 }) => {
     if (!session2) {
       return false;
     } else if (!!session2?.data.isAdmin) {
@@ -73,7 +73,7 @@ var rules = {
       return false;
     }
   },
-  canDelete: ({ session: session2 }) => {
+  hideDeleteButton: ({ session: session2 }) => {
     if (!session2) {
       return false;
     } else if (!!session2?.data.isAdmin) {
@@ -98,8 +98,8 @@ var lists = {
       }
     },
     ui: {
-      hideCreate: (session2) => rules.canCreate(session2),
-      hideDelete: (session2) => rules.canDelete(session2)
+      hideCreate: (session2) => rules.hideCreateButton(session2),
+      hideDelete: (session2) => rules.hideDeleteButton(session2)
     },
     fields: {
       name: (0, import_fields.text)({
@@ -118,7 +118,10 @@ var lists = {
       }),
       race: (0, import_fields.relationship)({
         ref: "Race",
-        many: false
+        many: false,
+        access: {
+          update: ({ session: session2 }) => permissions.isAdmin(session2)
+        }
       }),
       adminRole: (0, import_fields.select)({
         type: "string",
@@ -277,8 +280,8 @@ var lists = {
       }
     },
     ui: {
-      hideCreate: (session2) => rules.canCreate(session2),
-      hideDelete: (session2) => rules.canDelete(session2)
+      hideCreate: (session2) => rules.hideCreateButton(session2),
+      hideDelete: (session2) => rules.hideDeleteButton(session2)
     },
     fields: {
       name: (0, import_fields.text)({

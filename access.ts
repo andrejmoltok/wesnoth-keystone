@@ -14,7 +14,7 @@ export const permissions = {
 };
 
 export const rules = {
-    canCreate: ({ session }: ListAccessArgs) => {
+    hideCreateButton: ({ session }: ListAccessArgs) => {
       if (!session) {
         // No session? No people.
         return false;
@@ -47,7 +47,7 @@ export const rules = {
           return false;
         }
     },
-    canDelete: ({ session }: ListAccessArgs) => {
+    hideDeleteButton: ({ session }: ListAccessArgs) => {
       if (!session) {
         // No session? No people.
         return false;

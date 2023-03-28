@@ -26,8 +26,8 @@ export const lists: Lists = {
       },
     },
     ui: {
-      hideCreate: (session) => rules.canCreate(session),
-      hideDelete: (session) => rules.canDelete(session),
+      hideCreate: (session) => rules.hideCreateButton(session),
+      hideDelete: (session) => rules.hideDeleteButton(session),
     },
 
     fields: {
@@ -226,8 +226,8 @@ export const lists: Lists = {
       },
     },
     ui: {
-      hideCreate: (session) => rules.canCreate(session),
-      hideDelete: (session) => rules.canDelete(session),
+      hideCreate: (session) => rules.hideCreateButton(session),
+      hideDelete: (session) => rules.hideDeleteButton(session),
     },
     fields: {
       name: text({
