@@ -51,7 +51,8 @@ export const lists: Lists = {
         ref: 'Race',
         many: false,
         access: {
-          update: ({session}) => permissions.isAdmin(session),
+          read: () => true,
+          update: (session) => rules.canUpdate(session),
         }
       }),
 
@@ -161,7 +162,10 @@ export const lists: Lists = {
 
     // this is the fields for our Post list
     fields: {
-      title: text({ validation: { isRequired: true } }),
+      title: text({ 
+        isIndexed: 'unique',  
+        validation: { isRequired: true } 
+      }),
 
       content: document({
         formatting: true,
@@ -195,6 +199,18 @@ export const lists: Lists = {
         many: false,
       }),
 
+      comments: relationship({
+        ref: 'Comment',
+        ui: {
+          displayMode: 'cards',
+          cardFields: ['name'],
+          inlineEdit: { fields: ['name'] },
+          linkToItem: true,
+          inlineConnect: true,
+        },
+        many: false,
+      }),
+
       // with this field, you can add some Tags to Posts
       tags: relationship({
         // we could have used 'Tag', but then the relationship would only be 1-way
@@ -214,6 +230,50 @@ export const lists: Lists = {
         },
       }),
     },
+  }),
+
+  Comment: list({
+    access: {
+      operation: {
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true,
+      }
+    },
+    ui: {
+      hideCreate: (session) => rules.hideCreateButton(session),
+      hideDelete: (session) => rules.hideDeleteButton(session),
+    },
+    fields: {
+      name: text({ 
+        isIndexed: 'unique',
+        validation: { isRequired: true 
+      }}),
+      content: document({formatting: true}),
+      author: relationship({
+        ref: 'User',
+        ui: {
+          displayMode: 'cards',
+          cardFields: ['name'],
+          inlineEdit: { fields: ['name'] },
+          linkToItem: true,
+          inlineConnect: true,
+        },
+        many: false,
+      }),
+      posts: relationship({
+        ref: 'Post',
+        ui: {
+          displayMode: 'cards',
+          cardFields: ['title'],
+          inlineEdit: { fields: ['title'] },
+          linkToItem: true,
+          inlineConnect: true,
+        },
+        many: false
+      }),
+    }
   }),
 
   Race: list({

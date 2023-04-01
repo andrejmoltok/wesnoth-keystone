@@ -9,14 +9,12 @@
     "postinstall": "keystone build --no-ui --frozen"
   },
   "dependencies": {
-    "@keystone-6/auth": "^7.0.0",
     "@keystone-6/core": "^5.1.0",
+    "@keystone-6/auth": "^7.0.0",
     "@keystone-6/fields-document": "^7.0.0",
-    "cors": "^2.8.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "typescript": "^4.9.5",
-    "uuid": "^9.0.0",
-    "yarn": "^1.22.19"
+    "uuid": "^9.0.0"
   }
 }

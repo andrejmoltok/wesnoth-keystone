@@ -120,7 +120,8 @@ var lists = {
         ref: "Race",
         many: false,
         access: {
-          update: ({ session: session2 }) => permissions.isAdmin(session2)
+          read: () => true,
+          update: (session2) => rules.canUpdate(session2)
         }
       }),
       adminRole: (0, import_fields.select)({
@@ -223,7 +224,10 @@ var lists = {
     },
     // this is the fields for our Post list
     fields: {
-      title: (0, import_fields.text)({ validation: { isRequired: true } }),
+      title: (0, import_fields.text)({
+        isIndexed: "unique",
+        validation: { isRequired: true }
+      }),
       content: (0, import_fields_document.document)({
         formatting: true,
         layouts: [
@@ -252,6 +256,17 @@ var lists = {
         //   this is the default, but we show it here for verbosity
         many: false
       }),
+      comments: (0, import_fields.relationship)({
+        ref: "Comment",
+        ui: {
+          displayMode: "cards",
+          cardFields: ["name"],
+          inlineEdit: { fields: ["name"] },
+          linkToItem: true,
+          inlineConnect: true
+        },
+        many: false
+      }),
       // with this field, you can add some Tags to Posts
       tags: (0, import_fields.relationship)({
         // we could have used 'Tag', but then the relationship would only be 1-way
@@ -267,6 +282,51 @@ var lists = {
           inlineConnect: true,
           inlineCreate: { fields: ["name"] }
         }
+      })
+    }
+  }),
+  Comment: (0, import_core.list)({
+    access: {
+      operation: {
+        create: () => true,
+        query: () => true,
+        update: () => true,
+        delete: () => true
+      }
+    },
+    ui: {
+      hideCreate: (session2) => rules.hideCreateButton(session2),
+      hideDelete: (session2) => rules.hideDeleteButton(session2)
+    },
+    fields: {
+      name: (0, import_fields.text)({
+        isIndexed: "unique",
+        validation: {
+          isRequired: true
+        }
+      }),
+      content: (0, import_fields_document.document)({ formatting: true }),
+      author: (0, import_fields.relationship)({
+        ref: "User",
+        ui: {
+          displayMode: "cards",
+          cardFields: ["name"],
+          inlineEdit: { fields: ["name"] },
+          linkToItem: true,
+          inlineConnect: true
+        },
+        many: false
+      }),
+      posts: (0, import_fields.relationship)({
+        ref: "Post",
+        ui: {
+          displayMode: "cards",
+          cardFields: ["title"],
+          inlineEdit: { fields: ["title"] },
+          linkToItem: true,
+          inlineConnect: true
+        },
+        many: false
       })
     }
   }),

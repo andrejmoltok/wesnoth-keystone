@@ -12,29 +12,48 @@ generator client {
 }
 
 model User {
-  id        String    @id @default(cuid())
-  name      String    @unique @default("")
-  email     String    @unique @default("")
-  password  String
-  race      Race?     @relation("User_race", fields: [raceId], references: [id])
-  raceId    String?   @map("race")
-  adminRole String?   @default("")
-  userRole  String?   @default("")
-  posts     Post[]    @relation("Post_author")
-  createdAt DateTime? @default(now())
+  id                  String    @id @default(cuid())
+  name                String    @unique @default("")
+  email               String    @unique @default("")
+  password            String
+  race                Race?     @relation("User_race", fields: [raceId], references: [id])
+  raceId              String?   @map("race")
+  adminRole           String?   @default("")
+  userRole            String?   @default("")
+  posts               Post[]    @relation("Post_author")
+  createdAt           DateTime? @default(now())
+  from_Comment_author Comment[] @relation("Comment_author")
 
   @@index([raceId])
 }
 
 model Post {
-  id       String  @id @default(cuid())
-  title    String  @default("")
-  content  Json    @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
-  author   User?   @relation("Post_author", fields: [authorId], references: [id])
-  authorId String? @map("author")
-  tags     Tag[]   @relation("Post_tags")
+  id                 String    @id @default(cuid())
+  title              String    @unique @default("")
+  content            Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  author             User?     @relation("Post_author", fields: [authorId], references: [id])
+  authorId           String?   @map("author")
+  comments           Comment?  @relation("Post_comments", fields: [commentsId], references: [id])
+  commentsId         String?   @map("comments")
+  tags               Tag[]     @relation("Post_tags")
+  from_Comment_posts Comment[] @relation("Comment_posts")
 
   @@index([authorId])
+  @@index([commentsId])
+}
+
+model Comment {
+  id                 String  @id @default(cuid())
+  name               String  @unique @default("")
+  content            Json    @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  author             User?   @relation("Comment_author", fields: [authorId], references: [id])
+  authorId           String? @map("author")
+  posts              Post?   @relation("Comment_posts", fields: [postsId], references: [id])
+  postsId            String? @map("posts")
+  from_Post_comments Post[]  @relation("Post_comments")
+
+  @@index([authorId])
+  @@index([postsId])
 }
 
 model Race {

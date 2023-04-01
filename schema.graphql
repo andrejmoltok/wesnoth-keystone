@@ -197,6 +197,7 @@ type Post {
   title: String
   content: Post_content_Document
   author: User
+  comments: Comment
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
 }
@@ -207,6 +208,7 @@ type Post_content_Document {
 
 input PostWhereUniqueInput {
   id: ID
+  title: String
 }
 
 input PostWhereInput {
@@ -216,6 +218,7 @@ input PostWhereInput {
   id: IDFilter
   title: StringFilter
   author: UserWhereInput
+  comments: CommentWhereInput
   tags: TagManyRelationFilter
 }
 
@@ -234,12 +237,19 @@ input PostUpdateInput {
   title: String
   content: JSON
   author: UserRelateToOneForUpdateInput
+  comments: CommentRelateToOneForUpdateInput
   tags: TagRelateToManyForUpdateInput
 }
 
 input UserRelateToOneForUpdateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
+  disconnect: Boolean
+}
+
+input CommentRelateToOneForUpdateInput {
+  create: CommentCreateInput
+  connect: CommentWhereUniqueInput
   disconnect: Boolean
 }
 
@@ -259,6 +269,7 @@ input PostCreateInput {
   title: String
   content: JSON
   author: UserRelateToOneForCreateInput
+  comments: CommentRelateToOneForCreateInput
   tags: TagRelateToManyForCreateInput
 }
 
@@ -267,9 +278,76 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
+input CommentRelateToOneForCreateInput {
+  create: CommentCreateInput
+  connect: CommentWhereUniqueInput
+}
+
 input TagRelateToManyForCreateInput {
   create: [TagCreateInput!]
   connect: [TagWhereUniqueInput!]
+}
+
+type Comment {
+  id: ID!
+  name: String
+  content: Comment_content_Document
+  author: User
+  posts: Post
+}
+
+type Comment_content_Document {
+  document(hydrateRelationships: Boolean! = false): JSON!
+}
+
+input CommentWhereUniqueInput {
+  id: ID
+  name: String
+}
+
+input CommentWhereInput {
+  AND: [CommentWhereInput!]
+  OR: [CommentWhereInput!]
+  NOT: [CommentWhereInput!]
+  id: IDFilter
+  name: StringFilter
+  author: UserWhereInput
+  posts: PostWhereInput
+}
+
+input CommentOrderByInput {
+  id: OrderDirection
+  name: OrderDirection
+}
+
+input CommentUpdateInput {
+  name: String
+  content: JSON
+  author: UserRelateToOneForUpdateInput
+  posts: PostRelateToOneForUpdateInput
+}
+
+input PostRelateToOneForUpdateInput {
+  create: PostCreateInput
+  connect: PostWhereUniqueInput
+  disconnect: Boolean
+}
+
+input CommentUpdateArgs {
+  where: CommentWhereUniqueInput!
+  data: CommentUpdateInput!
+}
+
+input CommentCreateInput {
+  name: String
+  content: JSON
+  author: UserRelateToOneForCreateInput
+  posts: PostRelateToOneForCreateInput
+}
+
+input PostRelateToOneForCreateInput {
+  create: PostCreateInput
+  connect: PostWhereUniqueInput
 }
 
 type Race {
@@ -397,6 +475,12 @@ type Mutation {
   updatePosts(data: [PostUpdateArgs!]!): [Post]
   deletePost(where: PostWhereUniqueInput!): Post
   deletePosts(where: [PostWhereUniqueInput!]!): [Post]
+  createComment(data: CommentCreateInput!): Comment
+  createComments(data: [CommentCreateInput!]!): [Comment]
+  updateComment(where: CommentWhereUniqueInput!, data: CommentUpdateInput!): Comment
+  updateComments(data: [CommentUpdateArgs!]!): [Comment]
+  deleteComment(where: CommentWhereUniqueInput!): Comment
+  deleteComments(where: [CommentWhereUniqueInput!]!): [Comment]
   createRace(data: RaceCreateInput!): Race
   createRaces(data: [RaceCreateInput!]!): [Race]
   updateRace(where: RaceWhereUniqueInput!, data: RaceUpdateInput!): Race
@@ -438,6 +522,9 @@ type Query {
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
   post(where: PostWhereUniqueInput!): Post
   postsCount(where: PostWhereInput! = {}): Int
+  comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CommentWhereUniqueInput): [Comment!]
+  comment(where: CommentWhereUniqueInput!): Comment
+  commentsCount(where: CommentWhereInput! = {}): Int
   races(where: RaceWhereInput! = {}, orderBy: [RaceOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: RaceWhereUniqueInput): [Race!]
   race(where: RaceWhereUniqueInput!): Race
   racesCount(where: RaceWhereInput! = {}): Int
