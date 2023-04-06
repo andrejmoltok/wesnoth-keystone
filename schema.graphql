@@ -197,7 +197,8 @@ type Post {
   title: String
   content: Post_content_Document
   author: User
-  comments: Comment
+  comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CommentWhereUniqueInput): [Comment!]
+  commentsCount(where: CommentWhereInput! = {}): Int
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
 }
@@ -218,8 +219,14 @@ input PostWhereInput {
   id: IDFilter
   title: StringFilter
   author: UserWhereInput
-  comments: CommentWhereInput
+  comments: CommentManyRelationFilter
   tags: TagManyRelationFilter
+}
+
+input CommentManyRelationFilter {
+  every: CommentWhereInput
+  some: CommentWhereInput
+  none: CommentWhereInput
 }
 
 input TagManyRelationFilter {
@@ -237,7 +244,7 @@ input PostUpdateInput {
   title: String
   content: JSON
   author: UserRelateToOneForUpdateInput
-  comments: CommentRelateToOneForUpdateInput
+  comments: CommentRelateToManyForUpdateInput
   tags: TagRelateToManyForUpdateInput
 }
 
@@ -247,10 +254,11 @@ input UserRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
-input CommentRelateToOneForUpdateInput {
-  create: CommentCreateInput
-  connect: CommentWhereUniqueInput
-  disconnect: Boolean
+input CommentRelateToManyForUpdateInput {
+  disconnect: [CommentWhereUniqueInput!]
+  set: [CommentWhereUniqueInput!]
+  create: [CommentCreateInput!]
+  connect: [CommentWhereUniqueInput!]
 }
 
 input TagRelateToManyForUpdateInput {
@@ -269,7 +277,7 @@ input PostCreateInput {
   title: String
   content: JSON
   author: UserRelateToOneForCreateInput
-  comments: CommentRelateToOneForCreateInput
+  comments: CommentRelateToManyForCreateInput
   tags: TagRelateToManyForCreateInput
 }
 
@@ -278,9 +286,9 @@ input UserRelateToOneForCreateInput {
   connect: UserWhereUniqueInput
 }
 
-input CommentRelateToOneForCreateInput {
-  create: CommentCreateInput
-  connect: CommentWhereUniqueInput
+input CommentRelateToManyForCreateInput {
+  create: [CommentCreateInput!]
+  connect: [CommentWhereUniqueInput!]
 }
 
 input TagRelateToManyForCreateInput {
@@ -293,7 +301,6 @@ type Comment {
   name: String
   content: Comment_content_Document
   author: User
-  posts: Post
 }
 
 type Comment_content_Document {
@@ -312,7 +319,6 @@ input CommentWhereInput {
   id: IDFilter
   name: StringFilter
   author: UserWhereInput
-  posts: PostWhereInput
 }
 
 input CommentOrderByInput {
@@ -324,13 +330,6 @@ input CommentUpdateInput {
   name: String
   content: JSON
   author: UserRelateToOneForUpdateInput
-  posts: PostRelateToOneForUpdateInput
-}
-
-input PostRelateToOneForUpdateInput {
-  create: PostCreateInput
-  connect: PostWhereUniqueInput
-  disconnect: Boolean
 }
 
 input CommentUpdateArgs {
@@ -342,12 +341,6 @@ input CommentCreateInput {
   name: String
   content: JSON
   author: UserRelateToOneForCreateInput
-  posts: PostRelateToOneForCreateInput
-}
-
-input PostRelateToOneForCreateInput {
-  create: PostCreateInput
-  connect: PostWhereUniqueInput
 }
 
 type Race {

@@ -265,7 +265,7 @@ var lists = {
           linkToItem: true,
           inlineConnect: true
         },
-        many: false
+        many: true
       }),
       // with this field, you can add some Tags to Posts
       tags: (0, import_fields.relationship)({
@@ -301,28 +301,15 @@ var lists = {
     fields: {
       name: (0, import_fields.text)({
         isIndexed: "unique",
-        validation: {
-          isRequired: true
-        }
+        validation: { isRequired: true }
       }),
-      content: (0, import_fields_document.document)({ formatting: true }),
+      content: (0, import_fields_document.document)({}),
       author: (0, import_fields.relationship)({
         ref: "User",
         ui: {
           displayMode: "cards",
           cardFields: ["name"],
           inlineEdit: { fields: ["name"] },
-          linkToItem: true,
-          inlineConnect: true
-        },
-        many: false
-      }),
-      posts: (0, import_fields.relationship)({
-        ref: "Post",
-        ui: {
-          displayMode: "cards",
-          cardFields: ["title"],
-          inlineEdit: { fields: ["title"] },
           linkToItem: true,
           inlineConnect: true
         },
@@ -497,11 +484,8 @@ var session = (0, import_session.statelessSessions)({
 var keystone_default = withAuth(
   (0, import_core2.config)({
     db: {
-      // we're using sqlite for the fastest startup experience
-      //   for more information on what database might be appropriate for you
-      //   see https://keystonejs.com/docs/guides/choosing-a-database#title
       provider: "mysql",
-      url: "mysql://wesnoth:2kkm1NOH@127.0.0.1:3306/wesnoth"
+      url: "mysql://wesnoth:2kkm1NOH@localhost:3306/wesnoth"
     },
     lists,
     session,

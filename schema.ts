@@ -208,7 +208,7 @@ export const lists: Lists = {
           linkToItem: true,
           inlineConnect: true,
         },
-        many: false,
+        many: true,
       }),
 
       // with this field, you can add some Tags to Posts
@@ -248,9 +248,9 @@ export const lists: Lists = {
     fields: {
       name: text({ 
         isIndexed: 'unique',
-        validation: { isRequired: true 
-      }}),
-      content: document({formatting: true}),
+        validation: { isRequired: true }
+      }),
+      content: document({}),
       author: relationship({
         ref: 'User',
         ui: {
@@ -261,18 +261,7 @@ export const lists: Lists = {
           inlineConnect: true,
         },
         many: false,
-      }),
-      posts: relationship({
-        ref: 'Post',
-        ui: {
-          displayMode: 'cards',
-          cardFields: ['title'],
-          inlineEdit: { fields: ['title'] },
-          linkToItem: true,
-          inlineConnect: true,
-        },
-        many: false
-      }),
+      })
     }
   }),
 

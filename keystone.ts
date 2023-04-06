@@ -18,11 +18,8 @@ import { withAuth, session } from './auth';
 export default withAuth(
   config({
     db: {
-      // we're using sqlite for the fastest startup experience
-      //   for more information on what database might be appropriate for you
-      //   see https://keystonejs.com/docs/guides/choosing-a-database#title
       provider: 'mysql',
-      url: 'mysql://wesnoth:2kkm1NOH@127.0.0.1:3306/wesnoth',
+      url: 'mysql://wesnoth:2kkm1NOH@localhost:3306/wesnoth',
     },
     lists,
     session,
