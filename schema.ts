@@ -8,8 +8,8 @@ import {
   timestamp,
   image,
   select,
-  checkbox,
-  virtual
+  virtual,
+  integer
 } from '@keystone-6/core/fields';
 import { document } from '@keystone-6/fields-document';
 import type { Lists } from '.keystone/types';
@@ -229,7 +229,12 @@ export const lists: Lists = {
           inlineCreate: { fields: ['name'] },
         },
       }),
+
+      createdAt: timestamp({
+        defaultValue: { kind: 'now' },
+      }),
     },
+    
   }),
 
   Comment: list({
@@ -242,7 +247,6 @@ export const lists: Lists = {
       }
     },
     ui: {
-      hideCreate: (session) => rules.hideCreateButton(session),
       hideDelete: (session) => rules.hideDeleteButton(session),
     },
     fields: {
@@ -261,7 +265,10 @@ export const lists: Lists = {
           inlineConnect: true,
         },
         many: false,
-      })
+      }),
+      createdAt: timestamp({
+        defaultValue: { kind: 'now' },
+      }),
     }
   }),
 

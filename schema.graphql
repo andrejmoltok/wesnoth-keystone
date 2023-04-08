@@ -201,6 +201,7 @@ type Post {
   commentsCount(where: CommentWhereInput! = {}): Int
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tagsCount(where: TagWhereInput! = {}): Int
+  createdAt: DateTime
 }
 
 type Post_content_Document {
@@ -221,6 +222,7 @@ input PostWhereInput {
   author: UserWhereInput
   comments: CommentManyRelationFilter
   tags: TagManyRelationFilter
+  createdAt: DateTimeNullableFilter
 }
 
 input CommentManyRelationFilter {
@@ -238,6 +240,7 @@ input TagManyRelationFilter {
 input PostOrderByInput {
   id: OrderDirection
   title: OrderDirection
+  createdAt: OrderDirection
 }
 
 input PostUpdateInput {
@@ -246,6 +249,7 @@ input PostUpdateInput {
   author: UserRelateToOneForUpdateInput
   comments: CommentRelateToManyForUpdateInput
   tags: TagRelateToManyForUpdateInput
+  createdAt: DateTime
 }
 
 input UserRelateToOneForUpdateInput {
@@ -279,6 +283,7 @@ input PostCreateInput {
   author: UserRelateToOneForCreateInput
   comments: CommentRelateToManyForCreateInput
   tags: TagRelateToManyForCreateInput
+  createdAt: DateTime
 }
 
 input UserRelateToOneForCreateInput {
@@ -301,6 +306,7 @@ type Comment {
   name: String
   content: Comment_content_Document
   author: User
+  createdAt: DateTime
 }
 
 type Comment_content_Document {
@@ -319,17 +325,20 @@ input CommentWhereInput {
   id: IDFilter
   name: StringFilter
   author: UserWhereInput
+  createdAt: DateTimeNullableFilter
 }
 
 input CommentOrderByInput {
   id: OrderDirection
   name: OrderDirection
+  createdAt: OrderDirection
 }
 
 input CommentUpdateInput {
   name: String
   content: JSON
   author: UserRelateToOneForUpdateInput
+  createdAt: DateTime
 }
 
 input CommentUpdateArgs {
@@ -341,6 +350,7 @@ input CommentCreateInput {
   name: String
   content: JSON
   author: UserRelateToOneForCreateInput
+  createdAt: DateTime
 }
 
 type Race {

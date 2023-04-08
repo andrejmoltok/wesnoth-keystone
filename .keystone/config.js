@@ -282,6 +282,9 @@ var lists = {
           inlineConnect: true,
           inlineCreate: { fields: ["name"] }
         }
+      }),
+      createdAt: (0, import_fields.timestamp)({
+        defaultValue: { kind: "now" }
       })
     }
   }),
@@ -295,7 +298,6 @@ var lists = {
       }
     },
     ui: {
-      hideCreate: (session2) => rules.hideCreateButton(session2),
       hideDelete: (session2) => rules.hideDeleteButton(session2)
     },
     fields: {
@@ -314,6 +316,9 @@ var lists = {
           inlineConnect: true
         },
         many: false
+      }),
+      createdAt: (0, import_fields.timestamp)({
+        defaultValue: { kind: "now" }
       })
     }
   }),
