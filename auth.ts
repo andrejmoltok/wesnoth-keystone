@@ -4,7 +4,7 @@ import { createAuth } from '@keystone-6/auth';
 import { statelessSessions } from '@keystone-6/core/session';
 
 let sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret && process.env.NODE_ENV !== 'production') {
+if (!sessionSecret) {
   sessionSecret = randomBytes(32).toString('hex');
 }
 
@@ -19,11 +19,11 @@ const { withAuth } = createAuth({
   },
 });
 
-const sessionMaxAge = 60 * 60 * 24 * 30;
+const sessionMaxAge = 60 * 60;
 
 const session = statelessSessions({
   maxAge: sessionMaxAge,
-  secret: sessionSecret!,
+  secret: sessionSecret!
 });
 
 export { withAuth, session };

@@ -197,6 +197,7 @@ type Post {
   title: String
   content: Post_content_Document
   author: User
+  isPublished: Boolean
   comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CommentWhereUniqueInput): [Comment!]
   commentsCount(where: CommentWhereInput! = {}): Int
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
@@ -220,9 +221,15 @@ input PostWhereInput {
   id: IDFilter
   title: StringFilter
   author: UserWhereInput
+  isPublished: BooleanFilter
   comments: CommentManyRelationFilter
   tags: TagManyRelationFilter
   createdAt: DateTimeNullableFilter
+}
+
+input BooleanFilter {
+  equals: Boolean
+  not: BooleanFilter
 }
 
 input CommentManyRelationFilter {
@@ -240,6 +247,7 @@ input TagManyRelationFilter {
 input PostOrderByInput {
   id: OrderDirection
   title: OrderDirection
+  isPublished: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -247,6 +255,7 @@ input PostUpdateInput {
   title: String
   content: JSON
   author: UserRelateToOneForUpdateInput
+  isPublished: Boolean
   comments: CommentRelateToManyForUpdateInput
   tags: TagRelateToManyForUpdateInput
   createdAt: DateTime
@@ -281,6 +290,7 @@ input PostCreateInput {
   title: String
   content: JSON
   author: UserRelateToOneForCreateInput
+  isPublished: Boolean
   comments: CommentRelateToManyForCreateInput
   tags: TagRelateToManyForCreateInput
   createdAt: DateTime
@@ -306,6 +316,7 @@ type Comment {
   name: String
   content: Comment_content_Document
   author: User
+  isDeleted: Boolean
   createdAt: DateTime
 }
 
@@ -315,7 +326,6 @@ type Comment_content_Document {
 
 input CommentWhereUniqueInput {
   id: ID
-  name: String
 }
 
 input CommentWhereInput {
@@ -325,12 +335,14 @@ input CommentWhereInput {
   id: IDFilter
   name: StringFilter
   author: UserWhereInput
+  isDeleted: BooleanFilter
   createdAt: DateTimeNullableFilter
 }
 
 input CommentOrderByInput {
   id: OrderDirection
   name: OrderDirection
+  isDeleted: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -338,6 +350,7 @@ input CommentUpdateInput {
   name: String
   content: JSON
   author: UserRelateToOneForUpdateInput
+  isDeleted: Boolean
   createdAt: DateTime
 }
 
@@ -350,6 +363,7 @@ input CommentCreateInput {
   name: String
   content: JSON
   author: UserRelateToOneForCreateInput
+  isDeleted: Boolean
   createdAt: DateTime
 }
 
@@ -460,6 +474,53 @@ input TagCreateInput {
   posts: PostRelateToManyForCreateInput
 }
 
+type Log {
+  id: ID!
+  who: String
+  what: Log_what_Document
+  when: DateTime
+}
+
+type Log_what_Document {
+  document(hydrateRelationships: Boolean! = false): JSON!
+}
+
+input LogWhereUniqueInput {
+  id: ID
+}
+
+input LogWhereInput {
+  AND: [LogWhereInput!]
+  OR: [LogWhereInput!]
+  NOT: [LogWhereInput!]
+  id: IDFilter
+  who: StringFilter
+  when: DateTimeNullableFilter
+}
+
+input LogOrderByInput {
+  id: OrderDirection
+  who: OrderDirection
+  when: OrderDirection
+}
+
+input LogUpdateInput {
+  who: String
+  what: JSON
+  when: DateTime
+}
+
+input LogUpdateArgs {
+  where: LogWhereUniqueInput!
+  data: LogUpdateInput!
+}
+
+input LogCreateInput {
+  who: String
+  what: JSON
+  when: DateTime
+}
+
 """
 The `JSON` scalar type represents JSON values as specified by [ECMA-404](http://www.ecma-international.org/publications/files/ECMA-ST/ECMA-404.pdf).
 """
@@ -496,6 +557,12 @@ type Mutation {
   updateTags(data: [TagUpdateArgs!]!): [Tag]
   deleteTag(where: TagWhereUniqueInput!): Tag
   deleteTags(where: [TagWhereUniqueInput!]!): [Tag]
+  createLog(data: LogCreateInput!): Log
+  createLogs(data: [LogCreateInput!]!): [Log]
+  updateLog(where: LogWhereUniqueInput!, data: LogUpdateInput!): Log
+  updateLogs(data: [LogUpdateArgs!]!): [Log]
+  deleteLog(where: LogWhereUniqueInput!): Log
+  deleteLogs(where: [LogWhereUniqueInput!]!): [Log]
   endSession: Boolean!
   authenticateUserWithPassword(email: String!, password: String!): UserAuthenticationWithPasswordResult
   createInitialUser(data: CreateInitialUserInput!): UserAuthenticationWithPasswordSuccess!
@@ -534,6 +601,9 @@ type Query {
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
   tag(where: TagWhereUniqueInput!): Tag
   tagsCount(where: TagWhereInput! = {}): Int
+  logs(where: LogWhereInput! = {}, orderBy: [LogOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: LogWhereUniqueInput): [Log!]
+  log(where: LogWhereUniqueInput!): Log
+  logsCount(where: LogWhereInput! = {}): Int
   keystone: KeystoneMeta!
   authenticatedItem: AuthenticatedItem
 }

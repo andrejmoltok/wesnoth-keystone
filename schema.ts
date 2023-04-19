@@ -9,7 +9,7 @@ import {
   image,
   select,
   virtual,
-  integer
+  checkbox
 } from '@keystone-6/core/fields';
 import { document } from '@keystone-6/fields-document';
 import type { Lists } from '.keystone/types';
@@ -194,9 +194,11 @@ export const lists: Lists = {
           inlineConnect: true,
         },
 
-        // a Post can only have one author
-        //   this is the default, but we show it here for verbosity
         many: false,
+      }),
+
+      isPublished: checkbox({
+        defaultValue: false,
       }),
 
       comments: relationship({
@@ -204,22 +206,18 @@ export const lists: Lists = {
         ui: {
           displayMode: 'cards',
           cardFields: ['name'],
-          inlineEdit: { fields: ['name'] },
+          removeMode: 'disconnect',
           linkToItem: true,
           inlineConnect: true,
         },
         many: true,
       }),
 
-      // with this field, you can add some Tags to Posts
       tags: relationship({
-        // we could have used 'Tag', but then the relationship would only be 1-way
         ref: 'Tag.posts',
 
-        // a Post can have many Tags, not just one
         many: true,
 
-        // this is some customisations for changing how this will look in the AdminUI
         ui: {
           displayMode: 'cards',
           cardFields: ['name'],
@@ -250,21 +248,22 @@ export const lists: Lists = {
       hideDelete: (session) => rules.hideDeleteButton(session),
     },
     fields: {
-      name: text({ 
-        isIndexed: 'unique',
+      name: text({
         validation: { isRequired: true }
       }),
-      content: document({}),
+      content: document(),
       author: relationship({
         ref: 'User',
         ui: {
           displayMode: 'cards',
           cardFields: ['name'],
-          inlineEdit: { fields: ['name'] },
           linkToItem: true,
           inlineConnect: true,
         },
         many: false,
+      }),
+      isDeleted: checkbox({
+        defaultValue: false,
       }),
       createdAt: timestamp({
         defaultValue: { kind: 'now' },
@@ -412,5 +411,29 @@ export const lists: Lists = {
       // this can be helpful to find out all the Posts associated with a Tag
       posts: relationship({ ref: 'Post.tags', many: true }),
     },
+  }),
+
+  Log: list({
+    access: {
+      operation: {
+        create: () => true,
+        query: (session) => (permissions.isAdmin(session) || permissions.isEditor(session)),
+        update: () => false,
+        delete: (session) => permissions.isAdmin(session),
+      },
+    },
+    ui: {
+      hideCreate: (session) => rules.hideCreateButton(session),
+      hideDelete: (session) => rules.hideDeleteButton(session),
+    },
+    fields: {
+      who: text({
+        validation: { isRequired: true }
+      }),
+      what: document(),
+      when: timestamp({
+        defaultValue: { kind: 'now' },
+      }),
+    }
   }),
 };

@@ -28,24 +28,26 @@ model User {
 }
 
 model Post {
-  id        String    @id @default(cuid())
-  title     String    @unique @default("")
-  content   Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
-  author    User?     @relation("Post_author", fields: [authorId], references: [id])
-  authorId  String?   @map("author")
-  comments  Comment[] @relation("Post_comments")
-  tags      Tag[]     @relation("Post_tags")
-  createdAt DateTime? @default(now())
+  id          String    @id @default(cuid())
+  title       String    @unique @default("")
+  content     Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  author      User?     @relation("Post_author", fields: [authorId], references: [id])
+  authorId    String?   @map("author")
+  isPublished Boolean   @default(false)
+  comments    Comment[] @relation("Post_comments")
+  tags        Tag[]     @relation("Post_tags")
+  createdAt   DateTime? @default(now())
 
   @@index([authorId])
 }
 
 model Comment {
   id                 String    @id @default(cuid())
-  name               String    @unique @default("")
+  name               String    @default("")
   content            Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
   author             User?     @relation("Comment_author", fields: [authorId], references: [id])
   authorId           String?   @map("author")
+  isDeleted          Boolean   @default(false)
   createdAt          DateTime? @default(now())
   from_Post_comments Post[]    @relation("Post_comments")
 
@@ -68,4 +70,11 @@ model Tag {
   id    String @id @default(cuid())
   name  String @default("")
   posts Post[] @relation("Post_tags")
+}
+
+model Log {
+  id   String    @id @default(cuid())
+  who  String    @default("")
+  what Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  when DateTime? @default(now())
 }

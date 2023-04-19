@@ -252,28 +252,25 @@ var lists = {
           linkToItem: true,
           inlineConnect: true
         },
-        // a Post can only have one author
-        //   this is the default, but we show it here for verbosity
         many: false
+      }),
+      isPublished: (0, import_fields.checkbox)({
+        defaultValue: false
       }),
       comments: (0, import_fields.relationship)({
         ref: "Comment",
         ui: {
           displayMode: "cards",
           cardFields: ["name"],
-          inlineEdit: { fields: ["name"] },
+          removeMode: "disconnect",
           linkToItem: true,
           inlineConnect: true
         },
         many: true
       }),
-      // with this field, you can add some Tags to Posts
       tags: (0, import_fields.relationship)({
-        // we could have used 'Tag', but then the relationship would only be 1-way
         ref: "Tag.posts",
-        // a Post can have many Tags, not just one
         many: true,
-        // this is some customisations for changing how this will look in the AdminUI
         ui: {
           displayMode: "cards",
           cardFields: ["name"],
@@ -302,20 +299,21 @@ var lists = {
     },
     fields: {
       name: (0, import_fields.text)({
-        isIndexed: "unique",
         validation: { isRequired: true }
       }),
-      content: (0, import_fields_document.document)({}),
+      content: (0, import_fields_document.document)(),
       author: (0, import_fields.relationship)({
         ref: "User",
         ui: {
           displayMode: "cards",
           cardFields: ["name"],
-          inlineEdit: { fields: ["name"] },
           linkToItem: true,
           inlineConnect: true
         },
         many: false
+      }),
+      isDeleted: (0, import_fields.checkbox)({
+        defaultValue: false
       }),
       createdAt: (0, import_fields.timestamp)({
         defaultValue: { kind: "now" }
@@ -459,6 +457,29 @@ var lists = {
       // this can be helpful to find out all the Posts associated with a Tag
       posts: (0, import_fields.relationship)({ ref: "Post.tags", many: true })
     }
+  }),
+  Log: (0, import_core.list)({
+    access: {
+      operation: {
+        create: () => true,
+        query: (session2) => permissions.isAdmin(session2) || permissions.isEditor(session2),
+        update: () => false,
+        delete: (session2) => permissions.isAdmin(session2)
+      }
+    },
+    ui: {
+      hideCreate: (session2) => rules.hideCreateButton(session2),
+      hideDelete: (session2) => rules.hideDeleteButton(session2)
+    },
+    fields: {
+      who: (0, import_fields.text)({
+        validation: { isRequired: true }
+      }),
+      what: (0, import_fields_document.document)(),
+      when: (0, import_fields.timestamp)({
+        defaultValue: { kind: "now" }
+      })
+    }
   })
 };
 
@@ -467,7 +488,7 @@ var import_crypto = require("crypto");
 var import_auth = require("@keystone-6/auth");
 var import_session = require("@keystone-6/core/session");
 var sessionSecret = process.env.SESSION_SECRET;
-if (!sessionSecret && process.env.NODE_ENV !== "production") {
+if (!sessionSecret) {
   sessionSecret = (0, import_crypto.randomBytes)(32).toString("hex");
 }
 var { withAuth } = (0, import_auth.createAuth)({
@@ -479,7 +500,7 @@ var { withAuth } = (0, import_auth.createAuth)({
     fields: ["name", "email", "password"]
   }
 });
-var sessionMaxAge = 60 * 60 * 24 * 30;
+var sessionMaxAge = 60 * 60;
 var session = (0, import_session.statelessSessions)({
   maxAge: sessionMaxAge,
   secret: sessionSecret
