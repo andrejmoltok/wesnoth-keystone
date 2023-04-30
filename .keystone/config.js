@@ -124,6 +124,14 @@ var lists = {
           update: (session2) => rules.canUpdate(session2)
         }
       }),
+      coins: (0, import_fields.integer)({
+        defaultValue: 16,
+        access: {
+          create: () => false,
+          read: () => true,
+          update: () => true
+        }
+      }),
       adminRole: (0, import_fields.select)({
         type: "string",
         defaultValue: "",
@@ -203,6 +211,13 @@ var lists = {
       }),
       posts: (0, import_fields.relationship)({
         ref: "Post.author",
+        many: true,
+        access: {
+          update: (session2) => permissions.isAdmin(session2)
+        }
+      }),
+      comments: (0, import_fields.relationship)({
+        ref: "Comment.author",
         many: true,
         access: {
           update: (session2) => permissions.isAdmin(session2)
@@ -303,7 +318,7 @@ var lists = {
       }),
       content: (0, import_fields_document.document)(),
       author: (0, import_fields.relationship)({
-        ref: "User",
+        ref: "User.comments",
         ui: {
           displayMode: "cards",
           cardFields: ["name"],

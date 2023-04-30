@@ -7,6 +7,7 @@ type User {
   email: String
   password: PasswordState
   race: Race
+  coins: Int
   adminRole: String
   userRole: String
   isAdmin: Boolean
@@ -15,6 +16,8 @@ type User {
   isPending: Boolean
   posts(where: PostWhereInput! = {}, orderBy: [PostOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: PostWhereUniqueInput): [Post!]
   postsCount(where: PostWhereInput! = {}): Int
+  comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CommentWhereUniqueInput): [Comment!]
+  commentsCount(where: CommentWhereInput! = {}): Int
   createdAt: DateTime
 }
 
@@ -38,9 +41,11 @@ input UserWhereInput {
   name: StringFilter
   email: StringFilter
   race: RaceWhereInput
+  coins: IntNullableFilter
   adminRole: StringNullableFilter
   userRole: StringNullableFilter
   posts: PostManyRelationFilter
+  comments: CommentManyRelationFilter
   createdAt: DateTimeNullableFilter
 }
 
@@ -83,6 +88,17 @@ input NestedStringFilter {
   not: NestedStringFilter
 }
 
+input IntNullableFilter {
+  equals: Int
+  in: [Int!]
+  notIn: [Int!]
+  lt: Int
+  lte: Int
+  gt: Int
+  gte: Int
+  not: IntNullableFilter
+}
+
 input StringNullableFilter {
   equals: String
   in: [String!]
@@ -117,6 +133,12 @@ input PostManyRelationFilter {
   none: PostWhereInput
 }
 
+input CommentManyRelationFilter {
+  every: CommentWhereInput
+  some: CommentWhereInput
+  none: CommentWhereInput
+}
+
 input DateTimeNullableFilter {
   equals: DateTime
   in: [DateTime!]
@@ -132,6 +154,7 @@ input UserOrderByInput {
   id: OrderDirection
   name: OrderDirection
   email: OrderDirection
+  coins: OrderDirection
   adminRole: OrderDirection
   userRole: OrderDirection
   createdAt: OrderDirection
@@ -147,9 +170,11 @@ input UserUpdateInput {
   email: String
   password: String
   race: RaceRelateToOneForUpdateInput
+  coins: Int
   adminRole: String
   userRole: String
   posts: PostRelateToManyForUpdateInput
+  comments: CommentRelateToManyForUpdateInput
   createdAt: DateTime
 }
 
@@ -166,6 +191,13 @@ input PostRelateToManyForUpdateInput {
   connect: [PostWhereUniqueInput!]
 }
 
+input CommentRelateToManyForUpdateInput {
+  disconnect: [CommentWhereUniqueInput!]
+  set: [CommentWhereUniqueInput!]
+  create: [CommentCreateInput!]
+  connect: [CommentWhereUniqueInput!]
+}
+
 input UserUpdateArgs {
   where: UserWhereUniqueInput!
   data: UserUpdateInput!
@@ -176,9 +208,11 @@ input UserCreateInput {
   email: String
   password: String
   race: RaceRelateToOneForCreateInput
+  coins: Int
   adminRole: String
   userRole: String
   posts: PostRelateToManyForCreateInput
+  comments: CommentRelateToManyForCreateInput
   createdAt: DateTime
 }
 
@@ -190,6 +224,11 @@ input RaceRelateToOneForCreateInput {
 input PostRelateToManyForCreateInput {
   create: [PostCreateInput!]
   connect: [PostWhereUniqueInput!]
+}
+
+input CommentRelateToManyForCreateInput {
+  create: [CommentCreateInput!]
+  connect: [CommentWhereUniqueInput!]
 }
 
 type Post {
@@ -232,12 +271,6 @@ input BooleanFilter {
   not: BooleanFilter
 }
 
-input CommentManyRelationFilter {
-  every: CommentWhereInput
-  some: CommentWhereInput
-  none: CommentWhereInput
-}
-
 input TagManyRelationFilter {
   every: TagWhereInput
   some: TagWhereInput
@@ -267,13 +300,6 @@ input UserRelateToOneForUpdateInput {
   disconnect: Boolean
 }
 
-input CommentRelateToManyForUpdateInput {
-  disconnect: [CommentWhereUniqueInput!]
-  set: [CommentWhereUniqueInput!]
-  create: [CommentCreateInput!]
-  connect: [CommentWhereUniqueInput!]
-}
-
 input TagRelateToManyForUpdateInput {
   disconnect: [TagWhereUniqueInput!]
   set: [TagWhereUniqueInput!]
@@ -299,11 +325,6 @@ input PostCreateInput {
 input UserRelateToOneForCreateInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
-}
-
-input CommentRelateToManyForCreateInput {
-  create: [CommentCreateInput!]
-  connect: [CommentWhereUniqueInput!]
 }
 
 input TagRelateToManyForCreateInput {

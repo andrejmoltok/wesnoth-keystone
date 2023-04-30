@@ -9,7 +9,8 @@ import {
   image,
   select,
   virtual,
-  checkbox
+  checkbox,
+  integer
 } from '@keystone-6/core/fields';
 import { document } from '@keystone-6/fields-document';
 import type { Lists } from '.keystone/types';
@@ -53,6 +54,15 @@ export const lists: Lists = {
         access: {
           read: () => true,
           update: (session) => rules.canUpdate(session),
+        }
+      }),
+
+      coins: integer({
+        defaultValue: 16,
+        access: {
+          create: () => false,
+          read: () => true,
+          update: () => true,
         }
       }),
 
@@ -144,6 +154,14 @@ export const lists: Lists = {
         }
       }),
 
+      comments: relationship({
+        ref: 'Comment.author',
+        many: true,
+        access: {
+          update: (session) => permissions.isAdmin(session),
+        }
+      }),
+
       createdAt: timestamp({
         defaultValue: { kind: 'now' },
       }),
@@ -201,6 +219,8 @@ export const lists: Lists = {
         defaultValue: false,
       }),
 
+
+
       comments: relationship({
         ref: 'Comment',
         ui: {
@@ -253,7 +273,7 @@ export const lists: Lists = {
       }),
       content: document(),
       author: relationship({
-        ref: 'User',
+        ref: 'User.comments',
         ui: {
           displayMode: 'cards',
           cardFields: ['name'],
