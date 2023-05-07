@@ -121,6 +121,7 @@ export const lists: Lists = {
           }
         }),
       }),
+
       isEditor: virtual({
         field: graphql.field({
           type: graphql.Boolean,
@@ -129,6 +130,7 @@ export const lists: Lists = {
           }
         }),
       }),
+
       isUser: virtual({
         field: graphql.field({
           type: graphql.Boolean,
@@ -137,6 +139,7 @@ export const lists: Lists = {
           }
         }),
       }),
+
       isPending: virtual({
         field: graphql.field({
           type: graphql.Boolean,
@@ -215,11 +218,24 @@ export const lists: Lists = {
         many: false,
       }),
 
-      isPublished: checkbox({
-        defaultValue: false,
+      publishedState: select({
+        type: 'string',
+        defaultValue: 'Draft',
+        access: {
+          read: () => true,
+          update: (session) => rules.canUpdate(session),
+        },
+        options: [
+          {
+            label: 'Draft',
+            value: 'Draft',
+          },
+          {
+            label: 'Published',
+            value: 'Published',
+          },
+        ],
       }),
-
-
 
       comments: relationship({
         ref: 'Comment',

@@ -269,8 +269,23 @@ var lists = {
         },
         many: false
       }),
-      isPublished: (0, import_fields.checkbox)({
-        defaultValue: false
+      publishedState: (0, import_fields.select)({
+        type: "string",
+        defaultValue: "Draft",
+        access: {
+          read: () => true,
+          update: (session2) => rules.canUpdate(session2)
+        },
+        options: [
+          {
+            label: "Draft",
+            value: "Draft"
+          },
+          {
+            label: "Published",
+            value: "Published"
+          }
+        ]
       }),
       comments: (0, import_fields.relationship)({
         ref: "Comment",
