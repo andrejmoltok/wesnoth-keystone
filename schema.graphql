@@ -236,7 +236,7 @@ type Post {
   title: String
   content: Post_content_Document
   author: User
-  publishedState: String
+  state: String
   comments(where: CommentWhereInput! = {}, orderBy: [CommentOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: CommentWhereUniqueInput): [Comment!]
   commentsCount(where: CommentWhereInput! = {}): Int
   tags(where: TagWhereInput! = {}, orderBy: [TagOrderByInput!]! = [], take: Int, skip: Int! = 0, cursor: TagWhereUniqueInput): [Tag!]
@@ -260,7 +260,7 @@ input PostWhereInput {
   id: IDFilter
   title: StringFilter
   author: UserWhereInput
-  publishedState: StringNullableFilter
+  state: StringNullableFilter
   comments: CommentManyRelationFilter
   tags: TagManyRelationFilter
   createdAt: DateTimeNullableFilter
@@ -275,7 +275,7 @@ input TagManyRelationFilter {
 input PostOrderByInput {
   id: OrderDirection
   title: OrderDirection
-  publishedState: OrderDirection
+  state: OrderDirection
   createdAt: OrderDirection
 }
 
@@ -283,7 +283,7 @@ input PostUpdateInput {
   title: String
   content: JSON
   author: UserRelateToOneForUpdateInput
-  publishedState: String
+  state: String
   comments: CommentRelateToManyForUpdateInput
   tags: TagRelateToManyForUpdateInput
   createdAt: DateTime
@@ -311,7 +311,7 @@ input PostCreateInput {
   title: String
   content: JSON
   author: UserRelateToOneForCreateInput
-  publishedState: String
+  state: String
   comments: CommentRelateToManyForCreateInput
   tags: TagRelateToManyForCreateInput
   createdAt: DateTime

@@ -38,7 +38,8 @@ export const lists: Lists = {
         validation: { isRequired: true },
         access: {
           update: (session) => rules.canUpdate(session),
-        }, }),
+        }, 
+      }),
 
       email: text({
         validation: { isRequired: true },
@@ -73,16 +74,11 @@ export const lists: Lists = {
           read: () => true,
           update: ({session}) => permissions.isAdmin(session),
         },
-        // ui: {
-        //   itemView: {
-        //     fieldMode: ({ session }) => {
-        //       if (!!session?.data.isEditor) {
-        //         return "hidden";
-        //       }
-        //     }
-        //   }
-        // },
         options: [
+          {
+            label: '',
+            value: '',
+          },
           {
             label: 'Admin',
             value: 'Admin',
@@ -102,6 +98,10 @@ export const lists: Lists = {
           update: (session) => rules.canUpdate(session),
         },
         options: [
+          {
+            label: '',
+            value: '',
+          },
           {
             label: 'User',
             value: 'User',
@@ -218,7 +218,7 @@ export const lists: Lists = {
         many: false,
       }),
 
-      publishedState: select({
+      state: select({
         type: 'string',
         defaultValue: 'Draft',
         access: {

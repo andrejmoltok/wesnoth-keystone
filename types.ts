@@ -7,6 +7,7 @@ export type Session = {
     isAdmin: boolean;
     isEditor: boolean;
     isUser: boolean;
+    isPending: boolean;
   };
 };
 

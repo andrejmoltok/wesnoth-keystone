@@ -1,7 +1,9 @@
 "use strict";
+var __create = Object.create;
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
+var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __export = (target, all) => {
   for (var name in all)
@@ -15,6 +17,14 @@ var __copyProps = (to, from, except, desc) => {
   }
   return to;
 };
+var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__getProtoOf(mod)) : {}, __copyProps(
+  // If the importer is in node compatibility mode or this is not an ESM
+  // file that has been converted to a CommonJS file using a Babel-
+  // compatible transform (i.e. "__esModule" has not been set), then set
+  // "default" to the CommonJS "module.exports" for node compatibility.
+  isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
+  mod
+));
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // keystone.ts
@@ -139,16 +149,11 @@ var lists = {
           read: () => true,
           update: ({ session: session2 }) => permissions.isAdmin(session2)
         },
-        // ui: {
-        //   itemView: {
-        //     fieldMode: ({ session }) => {
-        //       if (!!session?.data.isEditor) {
-        //         return "hidden";
-        //       }
-        //     }
-        //   }
-        // },
         options: [
+          {
+            label: "",
+            value: ""
+          },
           {
             label: "Admin",
             value: "Admin"
@@ -167,6 +172,10 @@ var lists = {
           update: (session2) => rules.canUpdate(session2)
         },
         options: [
+          {
+            label: "",
+            value: ""
+          },
           {
             label: "User",
             value: "User"
@@ -269,7 +278,7 @@ var lists = {
         },
         many: false
       }),
-      publishedState: (0, import_fields.select)({
+      state: (0, import_fields.select)({
         type: "string",
         defaultValue: "Draft",
         access: {
@@ -537,11 +546,13 @@ var session = (0, import_session.statelessSessions)({
 });
 
 // keystone.ts
+var import_dotenv = __toESM(require("dotenv"));
+import_dotenv.default.config();
 var keystone_default = withAuth(
   (0, import_core2.config)({
     db: {
       provider: "mysql",
-      url: "mysql://wesnoth:2kkm1NOH@localhost:3306/wesnoth"
+      url: `${process.env.DATABASE_URL}`
     },
     lists,
     session,

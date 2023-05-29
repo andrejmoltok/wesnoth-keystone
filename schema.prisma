@@ -29,15 +29,15 @@ model User {
 }
 
 model Post {
-  id             String    @id @default(cuid())
-  title          String    @unique @default("")
-  content        Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
-  author         User?     @relation("Post_author", fields: [authorId], references: [id])
-  authorId       String?   @map("author")
-  publishedState String?   @default("Draft")
-  comments       Comment[] @relation("Post_comments")
-  tags           Tag[]     @relation("Post_tags")
-  createdAt      DateTime? @default(now())
+  id        String    @id @default(cuid())
+  title     String    @unique @default("")
+  content   Json      @default("[{\"type\":\"paragraph\",\"children\":[{\"text\":\"\"}]}]")
+  author    User?     @relation("Post_author", fields: [authorId], references: [id])
+  authorId  String?   @map("author")
+  state     String?   @default("Draft")
+  comments  Comment[] @relation("Post_comments")
+  tags      Tag[]     @relation("Post_tags")
+  createdAt DateTime? @default(now())
 
   @@index([authorId])
 }

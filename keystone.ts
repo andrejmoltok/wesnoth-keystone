@@ -15,11 +15,15 @@ import { lists } from './schema';
 // when you write your list-level access control functions, as they typically rely on session data
 import { withAuth, session } from './auth';
 
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 export default withAuth(
   config({
     db: {
       provider: 'mysql',
-      url: 'mysql://wesnoth:2kkm1NOH@localhost:3306/wesnoth',
+      url: `${process.env.DATABASE_URL}`,
     },
     lists,
     session,
